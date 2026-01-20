@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>G-HUB TITAN // STANDALONE</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>G-HUB TITAN // POLISHED</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;900&display=swap" rel="stylesheet">
@@ -13,135 +13,89 @@
         body { 
             background: var(--bg); color: white; font-family: 'Inter', sans-serif; 
             overflow: hidden; height: 100vh; width: 100vw; margin: 0;
+            -webkit-tap-highlight-color: transparent;
         }
         
-        /* Glassmorphism Effects */
         .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.08); }
-        .sidebar-btn { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; }
-        .sidebar-btn.active { background: var(--primary); box-shadow: 0 0 30px rgba(229, 9, 20, 0.4); color: white; transform: scale(1.05); }
+        .sidebar-btn.active { background: var(--primary); box-shadow: 0 0 30px rgba(229, 9, 20, 0.4); transform: scale(1.05); }
         
-        /* Grid Animations */
-        .item-card { transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: relative; overflow: hidden; }
-        .item-card:hover { transform: translateY(-8px); border-color: var(--primary); }
-        .item-card img { transition: transform 0.5s ease; }
-        .item-card:hover img { transform: scale(1.1); }
+        .item-card { transition: all 0.3s ease; border: 1px solid rgba(255,255,255,0.05); }
+        .item-card:active { transform: scale(0.95); border-color: var(--primary); }
 
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
-
-        /* iPad / Touch Specifics */
-        input, button { touch-action: manipulation; }
-        .joystick-btn { -webkit-user-select: none; user-select: none; }
+        /* Smooth Scroll */
+        #grid-container { -webkit-overflow-scrolling: touch; scroll-behavior: smooth; }
         
-        /* Animation keyframes */
-        @keyframes pulse-red { 0% { box-shadow: 0 0 0 0 rgba(229, 9, 20, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(229, 9, 20, 0); } 100% { box-shadow: 0 0 0 0 rgba(229, 9, 20, 0); } }
-        .live-dot { animation: pulse-red 2s infinite; }
+        /* Hide scrollbar for clean look */
+        ::-webkit-scrollbar { display: none; }
+
+        /* Fix for iPad Keyboard focus */
+        iframe:focus { outline: none; }
+        
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
     </style>
 </head>
 <body class="flex">
 
-    <nav class="w-24 md:w-72 bg-black border-r border-white/5 flex flex-col p-6 z-50">
-        <div class="mb-12">
-            <h1 class="text-2xl font-black italic tracking-tighter text-red-600 text-center md:text-left">TITAN_V33</h1>
-            <p class="hidden md:block text-[8px] font-bold text-gray-500 tracking-[0.3em] mt-1 uppercase">Standalone OS</p>
+    <nav class="w-20 md:w-64 bg-black border-r border-white/5 flex flex-col p-4 z-50">
+        <div class="mb-8 text-center">
+            <h1 class="text-xl font-black italic text-red-600">TITAN v35</h1>
         </div>
         
-        <div class="space-y-3 flex-1">
-            <button onclick="switchView('games')" id="btn-games" class="sidebar-btn active w-full p-4 rounded-2xl flex items-center justify-center md:justify-start gap-4 text-[10px] font-black uppercase">🎮 <span class="hidden md:block">Database</span></button>
-            <button onclick="switchView('creative')" id="btn-creative" class="sidebar-btn w-full p-4 rounded-2xl flex items-center justify-center md:justify-start gap-4 text-[10px] font-black uppercase">🎨 <span class="hidden md:block">Creative</span></button>
-            <button onclick="switchView('cinema')" id="btn-cinema" class="sidebar-btn w-full p-4 rounded-2xl flex items-center justify-center md:justify-start gap-4 text-[10px] font-black uppercase">📺 <span class="hidden md:block">Cinema</span></button>
-            <button onclick="switchView('cloak')" id="btn-cloak" class="sidebar-btn w-full p-4 rounded-2xl flex items-center justify-center md:justify-start gap-4 text-[10px] font-black uppercase">🕶️ <span class="hidden md:block">Cloak</span></button>
-            <button onclick="switchView('chat')" id="btn-chat" class="sidebar-btn w-full p-4 rounded-2xl flex items-center justify-center md:justify-start gap-4 text-[10px] font-black uppercase">💬 <span class="hidden md:block">Lobby</span></button>
+        <div class="space-y-2 flex-1">
+            <button onclick="switchView('games')" id="btn-games" class="sidebar-btn active w-full p-4 rounded-xl flex items-center justify-center md:justify-start gap-4 text-[10px] font-black uppercase">🎮 <span class="hidden md:block">Games</span></button>
+            <button onclick="switchView('creative')" id="btn-creative" class="sidebar-btn w-full p-4 rounded-xl flex items-center justify-center md:justify-start gap-4 text-[10px] font-black uppercase">🎨 <span class="hidden md:block">Creative</span></button>
+            <button onclick="switchView('cinema')" id="btn-cinema" class="sidebar-btn w-full p-4 rounded-xl flex items-center justify-center md:justify-start gap-4 text-[10px] font-black uppercase">📺 <span class="hidden md:block">Cinema</span></button>
+            <button onclick="switchView('cloak')" id="btn-cloak" class="sidebar-btn w-full p-4 rounded-xl flex items-center justify-center md:justify-start gap-4 text-[10px] font-black uppercase">🕶️ <span class="hidden md:block">Cloak</span></button>
+            <button onclick="switchView('chat')" id="btn-chat" class="sidebar-btn w-full p-4 rounded-xl flex items-center justify-center md:justify-start gap-4 text-[10px] font-black uppercase">💬 <span class="hidden md:block">Lobby</span></button>
         </div>
 
-        <div class="glass p-5 rounded-3xl mt-6">
-            <div class="flex items-center gap-3 mb-2">
-                <div class="w-2 h-2 rounded-full bg-green-500 live-dot"></div>
-                <span id="online-count" class="text-lg font-black italic">1</span>
-            </div>
-            <div class="text-[8px] text-gray-500 font-black uppercase tracking-widest">Global Users</div>
-            
-            <div id="gp-indicator" class="mt-4 pt-4 border-t border-white/5 flex items-center gap-2 opacity-30">
-                <div id="gp-light" class="w-2 h-2 rounded-full bg-white"></div>
-                <span class="text-[7px] font-black uppercase">Switch Controller</span>
-            </div>
+        <div class="glass p-4 rounded-2xl text-[10px] font-bold text-gray-500 uppercase tracking-tighter">
+            <div class="mb-2"><span class="status-dot bg-green-500 mr-2"></span>Users: <span id="online-count" class="text-white">1</span></div>
+            <div><span id="gp-dot" class="status-dot bg-red-500 mr-2"></span>Controller: <span id="gp-text" class="text-white">Off</span></div>
         </div>
     </nav>
 
-    <main class="flex-1 relative flex flex-col overflow-hidden">
-        <header class="p-8 flex items-center justify-between">
-            <div class="flex-1 max-w-xl relative">
-                <input type="text" id="search-bar" oninput="searchGames()" placeholder="SEARCH 150+ TITLES..." class="w-full bg-white/5 border border-white/10 p-5 rounded-2xl text-xs font-bold outline-none focus:border-red-600 transition-all">
-                <div class="absolute right-5 top-5 text-gray-600 text-[10px] font-black">CMD + F</div>
-            </div>
-            <div id="active-category" class="hidden md:block text-5xl font-black italic opacity-10 tracking-tighter">GAMES</div>
+    <main class="flex-1 flex flex-col relative overflow-hidden">
+        <header class="p-6 flex items-center gap-4">
+            <input type="text" id="search-bar" oninput="searchGames()" placeholder="SEARCH TITLES..." class="flex-1 bg-white/5 border border-white/10 p-4 rounded-xl text-sm outline-none focus:border-red-600">
         </header>
 
-        <div id="grid-container" class="flex-1 overflow-y-auto px-8 pb-12">
-            <div id="grid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-6"></div>
+        <div id="grid-container" class="flex-1 overflow-y-auto px-6 pb-20">
+            <div id="grid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4"></div>
         </div>
 
-        <div id="cloak-view" class="hidden flex-1 flex flex-col items-center justify-center p-12">
-            <div class="text-center mb-12">
-                <h2 class="text-4xl font-black italic mb-2 uppercase">Neural Link</h2>
-                <p class="text-gray-500 text-[10px] tracking-[0.5em] uppercase font-bold">Encrypted Proxy Access</p>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-3xl mb-8">
-                <div onclick="launchCloak('https://gointerstellar.app')" class="glass p-10 rounded-3xl cursor-pointer hover:border-blue-600 group">
-                    <div class="text-blue-500 font-black mb-1">INTERSTELLAR</div>
-                    <div class="text-[9px] text-gray-500 uppercase">Status: Operational</div>
-                </div>
-                <div onclick="launchCloak('https://radon.games')" class="glass p-10 rounded-3xl cursor-pointer hover:border-emerald-600 group">
-                    <div class="text-emerald-500 font-black mb-1">RADON</div>
-                    <div class="text-[9px] text-gray-500 uppercase">Status: High-Speed</div>
-                </div>
-            </div>
-            <div class="flex gap-3 w-full max-w-xl">
-                <input type="text" id="cloak-url" placeholder="HTTPS://TARGET-URL.COM" class="flex-1 bg-white/5 border border-white/10 p-5 rounded-2xl outline-none text-xs">
-                <button onclick="launchCloak()" class="bg-red-600 px-10 rounded-2xl font-black text-xs uppercase">Link</button>
+        <div id="cloak-view" class="hidden flex-1 flex flex-col items-center justify-center p-6">
+            <div class="glass p-8 rounded-3xl w-full max-w-lg">
+                <h2 class="text-2xl font-black italic mb-4 uppercase">Launch Proxy</h2>
+                <input type="text" id="cloak-url" placeholder="https://..." class="w-full bg-black/50 border border-white/10 p-4 rounded-xl mb-4 outline-none">
+                <button onclick="launchCloak()" class="w-full bg-red-600 p-4 rounded-xl font-black uppercase italic">Launch Invisible</button>
             </div>
         </div>
 
-        <div id="chat-view" class="hidden flex-1 p-8">
-            <div class="glass h-full rounded-[40px] flex flex-col overflow-hidden">
-                <div id="chat-messages" class="flex-1 p-8 overflow-y-auto space-y-4"></div>
-                <div class="p-6 bg-black/40 flex gap-3">
-                    <input type="text" id="chat-input" onkeypress="if(event.key==='Enter') sendMessage()" class="flex-1 bg-transparent border-none outline-none text-sm font-bold" placeholder="Communicate...">
-                    <button onclick="sendMessage()" class="bg-red-600 px-8 py-3 rounded-2xl font-black uppercase text-[10px]">Send</button>
-                </div>
+        <div id="chat-view" class="hidden flex-1 p-6 flex flex-col overflow-hidden">
+            <div id="chat-messages" class="flex-1 glass rounded-2xl p-4 overflow-y-auto mb-4 space-y-2"></div>
+            <div class="flex gap-2">
+                <input type="text" id="chat-input" onkeypress="if(event.key==='Enter') sendMessage()" class="flex-1 bg-white/5 border border-white/10 p-4 rounded-xl outline-none" placeholder="Message...">
+                <button onclick="sendMessage()" class="bg-red-600 px-8 rounded-xl font-black uppercase italic">Send</button>
             </div>
         </div>
     </main>
 
     <div id="player" class="fixed inset-0 bg-black z-[100] hidden flex flex-col">
-        <div class="p-4 bg-zinc-950 flex justify-between items-center border-b border-white/5">
-            <button onclick="closePlayer()" class="bg-red-600 px-10 py-3 rounded-full font-black text-[10px] uppercase italic">Close Session</button>
-            <div class="text-[10px] font-black text-gray-600 uppercase tracking-widest hidden md:block">Active Stream: Titan_Core</div>
-            <div class="flex gap-4">
-                <button onclick="triggerRumble('light')" class="text-lg">📳</button>
-            </div>
+        <div class="p-3 bg-zinc-950 flex justify-between items-center border-b border-white/5">
+            <button onclick="closePlayer()" class="bg-white/10 px-6 py-2 rounded-full font-black text-[10px] uppercase">Exit Session</button>
+            <div class="text-[9px] text-gray-600 font-black uppercase">Force-Focus Active</div>
         </div>
-        <iframe id="video-frame" class="w-full h-full border-none" src="" allow="autoplay; gamepad; haptic-feedback"></iframe>
-        
-        <div id="touch-controls" class="fixed bottom-12 left-0 right-0 flex justify-between px-12 pointer-events-none z-[110]">
-            <div class="flex flex-col items-center gap-2">
-                <button ontouchstart="simulateKey(87)" ontouchend="stopKey(87)" class="joystick-btn pointer-events-auto w-20 h-20 glass rounded-3xl font-black text-xl">W</button>
-                <div class="flex gap-2">
-                    <button ontouchstart="simulateKey(65)" ontouchend="stopKey(65)" class="joystick-btn pointer-events-auto w-20 h-20 glass rounded-3xl font-black text-xl">A</button>
-                    <button ontouchstart="simulateKey(83)" ontouchend="stopKey(83)" class="joystick-btn pointer-events-auto w-20 h-20 glass rounded-3xl font-black text-xl">S</button>
-                    <button ontouchstart="simulateKey(68)" ontouchend="stopKey(68)" class="joystick-btn pointer-events-auto w-20 h-20 glass rounded-3xl font-black text-xl">D</button>
-                </div>
-            </div>
-            <div class="flex items-end">
-                <button ontouchstart="simulateKey(32)" ontouchend="stopKey(32)" class="joystick-btn pointer-events-auto w-40 h-20 bg-red-600 rounded-full font-black text-xs uppercase shadow-2xl">Jump</button>
-            </div>
-        </div>
+        <iframe id="video-frame" 
+                class="w-full h-full border-none" 
+                allow="autoplay; gamepad; haptic-feedback; keyboard"
+                sandbox="allow-forms allow-modals allow-orientation-lock allow-pointer-lock allow-popups allow-popups-to-escape-sandbox allow-presentation allow-scripts allow-same-origin"
+                src=""></iframe>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, push, onChildAdded, serverTimestamp, onValue, set, onDisconnect, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getDatabase, ref, push, onChildAdded, set, onDisconnect, onValue, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyC_dYbJKb9EjfENjdmrhE0UvHPPBt5cWkY",
@@ -157,78 +111,65 @@
         const db = getDatabase(app);
         const chatRef = ref(db, 'messages');
 
-        // Chat Logic
         window.sendMessage = () => {
             const input = document.getElementById('chat-input');
-            const val = input.value.trim();
-            const name = localStorage.getItem('ghub_username');
-            if(val === "/clear_titan_99") { remove(chatRef); input.value = ""; return; }
-            if(val !== "") {
-                push(chatRef, { user: name, text: val });
+            if(input.value.trim() === "/clear_titan_99") { remove(chatRef); input.value = ""; return; }
+            if(input.value.trim()) {
+                push(chatRef, { user: localStorage.getItem('ghub_user'), text: input.value });
                 input.value = "";
-                triggerRumble('light');
             }
         };
 
-        onChildAdded(chatRef, (snap) => {
-            const data = snap.val();
-            const box = document.getElementById('chat-messages');
-            const div = document.createElement('div');
-            div.className = "p-4 glass rounded-3xl border-l-4 border-red-600 animate-in fade-in slide-in-from-bottom-2";
-            div.innerHTML = `<div class="text-[9px] font-black uppercase text-red-600 mb-1">${data.user}</div><div class="text-sm font-bold text-gray-200">${data.text}</div>`;
-            box.appendChild(div);
-            box.scrollTop = box.scrollHeight;
+        onChildAdded(chatRef, (s) => {
+            const d = s.val();
+            const m = document.getElementById('chat-messages');
+            const el = document.createElement('div');
+            el.className = "bg-white/5 p-3 rounded-xl border-l-2 border-red-600";
+            el.innerHTML = `<div class="text-[8px] font-black text-red-600">${d.user}</div><div class="text-xs">${d.text}</div>`;
+            m.appendChild(el);
+            m.scrollTop = m.scrollHeight;
         });
 
-        // Online Status
-        const username = localStorage.getItem('ghub_username');
-        const presenceRef = ref(db, `online/${username.replace(/\W/g,'')}`);
-        set(presenceRef, { name: username });
-        onDisconnect(presenceRef).remove();
-        onValue(ref(db, 'online'), (s) => { document.getElementById('online-count').innerText = s.size || 1; });
+        const u = localStorage.getItem('ghub_user') || 'User_'+Math.floor(Math.random()*999);
+        localStorage.setItem('ghub_user', u);
+        const pRef = ref(db, `online/${u.replace(/\W/g,'')}`);
+        set(pRef, { name: u });
+        onDisconnect(pRef).remove();
+        onValue(ref(db, 'online'), (s) => document.getElementById('online-count').innerText = s.size || 1);
     </script>
 
     <script>
-        // GLOBAL STATE
         let allGames = [];
-        let currentCategory = 'games';
+        let curView = 'games';
 
-        const creative = [
-            { title: "My Sketchbook", url: "https://619amandagaiser-del.github.io/Sketchbook/", img: "https://raw.githubusercontent.com/swift502/Sketchbook/master/favicon.ico" }
-        ];
+        const creative = [{ title: "My Sketchbook", url: "https://619amandagaiser-del.github.io/Sketchbook/", img: "https://raw.githubusercontent.com/swift502/Sketchbook/master/favicon.ico" }];
+        const cinema = [{ title: "Sonic X", url: "https://drive.google.com/drive/u/2/folders/1rM_wiU6k3TbIDvrp3kt72-4BFWO4GC7G", img: "https://www.themoviedb.org/t/p/w600_and_h900_bestv2/7H8oV8Q8v8lT1n0y6r6Xo1D8V2.jpg" }];
 
-        const cinema = [
-            { title: "Sonic X", url: "https://drive.google.com/drive/u/2/folders/1rM_wiU6k3TbIDvrp3kt72-4BFWO4GC7G", img: "https://www.themoviedb.org/t/p/w600_and_h900_bestv2/7H8oV8Q8v8lT1n0y6r6Xo1D8V2.jpg" },
-            { title: "Jujutsu Kaisen", url: "https://drive.google.com/drive/u/2/folders/1eqNcKK02wEdRV7RnfrmDRZf2s2QZHUyj", img: "https://www.themoviedb.org/t/p/w600_and_h900_bestv2/h9rKgo9vMiwvVkR9du77qpsS3Ug.jpg" }
-        ];
-
-        // LOAD DATA
-        async function loadGames() {
-            const res = await fetch('https://raw.githubusercontent.com/selenite-cc/selenite-old/main/games.json');
-            const data = await res.json();
-            allGames = Object.keys(data).map(key => ({
-                title: data[key].name || key,
-                url: `https://cdn.jsdelivr.net/gh/selenite-cc/selenite-old@main/${key}/index.html`,
-                img: `https://raw.githubusercontent.com/selenite-cc/selenite-old/main/${key}/${data[key].img || 'cover.svg'}`
-            }));
-            render(allGames);
+        async function init() {
+            try {
+                const res = await fetch('https://raw.githubusercontent.com/selenite-cc/selenite-old/main/games.json');
+                const data = await res.json();
+                allGames = Object.keys(data).map(k => ({
+                    title: data[k].name || k,
+                    url: `https://cdn.jsdelivr.net/gh/selenite-cc/selenite-old@main/${k}/index.html`,
+                    img: `https://raw.githubusercontent.com/selenite-cc/selenite-old/main/${k}/${data[k].img || 'cover.svg'}`
+                }));
+                render(allGames);
+            } catch(e) { console.error("Game load failed"); }
         }
 
-        // VIEW CONTROLLER
         function switchView(v) {
-            currentCategory = v;
+            curView = v;
             document.querySelectorAll('.sidebar-btn').forEach(b => b.classList.remove('active'));
             document.getElementById('btn-'+v).classList.add('active');
-            document.getElementById('active-category').innerText = v;
-
-            const views = ['grid-container', 'cloak-view', 'chat-view'];
-            views.forEach(id => document.getElementById(id).classList.add('hidden'));
+            
+            ['grid-container', 'cloak-view', 'chat-view'].forEach(id => document.getElementById(id).classList.add('hidden'));
 
             if(v === 'games') { document.getElementById('grid-container').classList.remove('hidden'); render(allGames); }
-            if(v === 'creative') { document.getElementById('grid-container').classList.remove('hidden'); render(creative); }
-            if(v === 'cinema') { document.getElementById('grid-container').classList.remove('hidden'); render(cinema); }
-            if(v === 'cloak') document.getElementById('cloak-view').classList.remove('hidden');
-            if(v === 'chat') document.getElementById('chat-view').classList.remove('hidden');
+            else if(v === 'creative') { document.getElementById('grid-container').classList.remove('hidden'); render(creative); }
+            else if(v === 'cinema') { document.getElementById('grid-container').classList.remove('hidden'); render(cinema); }
+            else if(v === 'cloak') document.getElementById('cloak-view').classList.remove('hidden');
+            else if(v === 'chat') document.getElementById('chat-view').classList.remove('hidden');
         }
 
         function render(list) {
@@ -236,76 +177,47 @@
             g.innerHTML = '';
             list.forEach(i => {
                 const d = document.createElement('div');
-                d.className = "item-card glass p-2 rounded-3xl border border-white/5 cursor-pointer";
+                d.className = "item-card glass p-2 rounded-2xl cursor-pointer";
                 d.onclick = () => {
-                    if(currentCategory === 'cinema') window.open(i.url, '_blank');
-                    else { 
-                        document.getElementById('video-frame').src = i.url; 
+                    if(curView === 'cinema') window.open(i.url, '_blank');
+                    else {
+                        document.getElementById('video-frame').src = i.url;
                         document.getElementById('player').classList.remove('hidden');
-                        triggerRumble('heavy');
+                        // Fix for iPad focus
+                        setTimeout(() => { document.getElementById('video-frame').focus(); }, 1000);
                     }
                 };
-                d.innerHTML = `<img src="${i.img}" class="w-full aspect-[3/4] object-cover rounded-2xl mb-3"><div class="text-[9px] font-black uppercase text-center truncate px-2 text-gray-400">${i.title}</div>`;
+                d.innerHTML = `<img src="${i.img}" class="w-full aspect-[3/4] object-cover rounded-xl mb-2">
+                               <div class="text-[9px] font-black uppercase text-center truncate text-gray-400">${i.title}</div>`;
                 g.appendChild(d);
             });
         }
 
-        // UTILITIES
-        function launchCloak(url) {
-            let t = url || document.getElementById('cloak-url').value;
-            if(!t.startsWith('http')) t = 'https://' + t;
-            const w = window.open();
-            const f = w.document.createElement('iframe');
-            f.style = "position:fixed;top:0;left:0;width:100%;height:100%;border:none;margin:0;";
-            f.src = t;
-            w.document.body.appendChild(f);
-            triggerRumble('heavy');
-        }
-
-        function closePlayer() { document.getElementById('video-frame').src = ''; document.getElementById('player').classList.add('hidden'); }
-        
         function searchGames() {
-            const term = document.getElementById('search-bar').value.toLowerCase();
-            const filtered = allGames.filter(g => g.title.toLowerCase().includes(term));
-            render(filtered);
+            const t = document.getElementById('search-bar').value.toLowerCase();
+            const f = (curView === 'games' ? allGames : curView === 'creative' ? creative : cinema).filter(g => g.title.toLowerCase().includes(t));
+            render(f);
         }
 
-        // CONTROLLER & HAPTICS
-        function triggerRumble(type) {
-            const gp = navigator.getGamepads()[0];
-            if(gp && gp.vibrationActuator) {
-                gp.vibrationActuator.playEffect("dual-rumble", {
-                    duration: type === 'light' ? 100 : 400,
-                    weakMagnitude: 1.0, strongMagnitude: type === 'light' ? 0 : 1.0
-                });
-            }
+        function launchCloak() {
+            let u = document.getElementById('cloak-url').value;
+            if(!u.startsWith('http')) u = 'https://' + u;
+            const w = window.open('about:blank');
+            w.document.body.innerHTML = `<iframe src="${u}" style="position:fixed;top:0;left:0;width:100%;height:100%;border:none;"></iframe>`;
         }
 
-        function simulateKey(code) {
-            const frame = document.getElementById('video-frame').contentWindow;
-            const e = { keyCode: code, which: code };
-            window.dispatchEvent(new KeyboardEvent('keydown', e));
-            frame.postMessage({ type: 'keydown', keyCode: code }, '*');
+        function closePlayer() {
+            document.getElementById('video-frame').src = '';
+            document.getElementById('player').classList.add('hidden');
         }
 
-        function stopKey(code) {
-            const frame = document.getElementById('video-frame').contentWindow;
-            window.dispatchEvent(new KeyboardEvent('keyup', { keyCode: code }));
-            frame.postMessage({ type: 'keyup', keyCode: code }, '*');
-        }
-
+        // Controller Listener
         window.addEventListener("gamepadconnected", () => {
-            document.getElementById('gp-indicator').classList.remove('opacity-30');
-            document.getElementById('gp-light').classList.add('bg-green-500');
-            document.getElementById('gp-status').innerText = "Active";
+            document.getElementById('gp-dot').className = "status-dot bg-green-500 mr-2";
+            document.getElementById('gp-text').innerText = "Active";
         });
 
-        // INIT
-        if(!localStorage.getItem('ghub_username')) localStorage.setItem('ghub_username', 'TITAN_'+Math.floor(Math.random()*999));
-        loadGames();
-        
-        // Hide touch controls on PC
-        if(!('ontouchstart' in window)) document.getElementById('touch-controls').style.display = 'none';
+        init();
     </script>
 </body>
 </html>
