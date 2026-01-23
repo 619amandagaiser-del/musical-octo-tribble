@@ -3,79 +3,116 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculator</title>
+    <title>Calculator</title> <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body, html { margin: 0; padding: 0; height: 100vh; overflow: hidden; background: #f8f9fa; font-family: sans-serif; }
-        
-        /* FULL SCREEN CALCSOLVER */
-        #main-frame { width: 100%; height: 100%; border: none; }
-
-        /* THE STEALTH BUBBLE */
-        /* Designed to look like a standard UI button */
-        .sentinel-bubble {
-            position: fixed; 
-            bottom: 20px; 
-            right: 20px;
-            width: 45px; 
-            height: 45px;
-            background: #e2e8f0; /* Neutral grey, looks like part of the site */
-            border-radius: 12px;
-            display: flex; 
-            align-items: center; 
-            justify-content: center;
-            cursor: pointer; 
-            z-index: 9999;
-            transition: all 0.2s ease;
-            border: 1px solid #cbd5e1;
-        }
-        
-        /* Only shows blue when you actually hover over it */
-        .sentinel-bubble:hover { background: #3b82f6; border-color: #2563eb; }
-        .sentinel-bubble svg { width: 20px; height: 20px; fill: #64748b; transition: fill 0.2s; }
-        .sentinel-bubble:hover svg { fill: white; }
-
-        /* LABEL DISGUISED AS "CALC SETTINGS" */
-        .ai-label {
-            position: absolute; right: 60px;
-            background: #1e293b; color: white;
-            padding: 6px 12px; border-radius: 8px;
-            font-size: 10px; font-weight: bold;
-            opacity: 0; pointer-events: none; transition: 0.3s;
-            white-space: nowrap;
-        }
-        .sentinel-bubble:hover .ai-label { opacity: 1; }
-
-        /* EMERGENCY PANIC OVERLAY */
-        #decoy { position: fixed; inset: 0; background: white; z-index: 100000; display: none; }
+        :root { --accent: #8a2be2; --bg: #03070b; }
+        body { background: var(--bg); color: white; font-family: 'Inter', sans-serif; overflow: hidden; height: 100vh; margin: 0; }
+        .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.05); }
+        .sidebar-btn.active { color: var(--accent); border-left: 3px solid var(--accent); background: linear-gradient(90deg, rgba(138,43,226,0.1) 0%, transparent 100%); }
+        iframe { width: 100%; height: 100%; border: none; }
+        #decoy-overlay { position: fixed; inset: 0; z-index: 99999; background: white; display: none; }
+        .game-card:hover { transform: scale(1.05); box-shadow: 0 0 20px rgba(138,43,226,0.3); }
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-thumb { background: #8a2be2; border-radius: 10px; }
     </style>
 </head>
-<body>
+<body class="flex">
 
-    <iframe id="main-frame" src="https://calcsolver.net/"></iframe>
-
-    <div id="decoy">
-        <iframe src="https://classroom.google.com"></iframe>
+    <div id="decoy-overlay">
+        <iframe src="https://en.wikipedia.org/wiki/Mathematical_analysis"></iframe>
     </div>
 
-    <div class="sentinel-bubble" onclick="openInternalMenu()">
-        <div class="ai-label">Calc_Core_Settings</div>
-        <svg viewBox="0 0 24 24">
-            <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
-        </svg>
+    <div class="fixed bottom-6 right-6 z-[999] group">
+        <div id="ai-status" class="absolute -top-12 right-0 glass px-4 py-2 rounded-2xl text-[9px] font-black text-purple-400 uppercase opacity-0 group-hover:opacity-100 transition-all pointer-events-none">Titan-AI: Reading Worth</div>
+        <button onclick="triggerAIVision()" class="w-14 h-14 bg-[#8a2be2] rounded-full flex items-center justify-center shadow-lg hover:scale-110 active:scale-90 transition-all border-2 border-white/20">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+        </button>
     </div>
+
+    <nav class="w-20 md:w-64 bg-black border-r border-white/5 flex flex-col p-6 z-50">
+        <div class="mb-10 p-2 bg-purple-600/5 rounded-xl border border-purple-500/10">
+            <h1 class="font-black text-[10px] text-purple-400 uppercase tracking-tighter">Vista Unified</h1>
+            <p class="text-[7px] text-gray-500 font-bold uppercase">Workstation v58</p>
+        </div>
+        
+        <div class="space-y-1 flex-1 overflow-y-auto">
+            <button onclick="switchView('calc')" id="btn-calc" class="sidebar-btn active w-full p-3 flex items-center gap-4 text-[11px] font-bold uppercase text-gray-400 transition-all">📐 Calculator</button>
+            <button onclick="switchView('games')" id="btn-games" class="sidebar-btn w-full p-3 flex items-center gap-4 text-[11px] font-bold uppercase text-gray-400 transition-all">🎮 Game Assets</button>
+            <button onclick="switchView('yt')" id="btn-yt" class="sidebar-btn w-full p-3 flex items-center gap-4 text-[11px] font-bold uppercase text-gray-400 transition-all">📺 YT Emulator</button>
+            <button onclick="switchView('ai')" id="btn-ai" class="sidebar-btn w-full p-3 flex items-center gap-4 text-[11px] font-bold uppercase text-gray-400 transition-all">🧠 AI Help</button>
+            <button onclick="switchView('proxy')" id="btn-proxy" class="sidebar-btn w-full p-3 flex items-center gap-4 text-[11px] font-bold uppercase text-gray-400 transition-all">🟣 Proxies</button>
+        </div>
+        
+        <button onclick="toggleDecoy()" class="mt-4 p-4 glass rounded-2xl text-[9px] font-black uppercase text-red-500 border-red-500/10">Panic Mode (`)</button>
+    </nav>
+
+    <main class="flex-1 relative flex flex-col overflow-hidden">
+        
+        <div id="calc-view" class="flex-1">
+            <iframe src="https://calcsolver.net/"></iframe>
+        </div>
+
+        <div id="games-view" class="hidden flex-1 overflow-y-auto p-6">
+            <div id="game-grid" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
+                </div>
+        </div>
+
+        <div id="yt-view" class="hidden flex-1 flex flex-col p-6">
+            <div class="glass flex-1 rounded-3xl overflow-hidden">
+                <iframe src="https://www.youtube.com/embed?listType=search&list=educational+math"></iframe>
+            </div>
+        </div>
+
+        <div id="ai-view" class="hidden flex-1 flex flex-col p-6">
+            <div class="glass flex-1 rounded-3xl overflow-hidden">
+                <iframe src="https://duckduckgo.com/?q=DuckDuckGo+AI+Chat&ia=chat"></iframe>
+            </div>
+        </div>
+
+        <div id="proxy-view" class="hidden flex-1 flex flex-col items-center justify-center gap-8">
+            <h2 class="text-4xl font-black italic text-purple-500">SHADOW BRIDGE</h2>
+            <div class="flex gap-4">
+                <button onclick="launchCloak('https://ai-wedge.github.io')" class="px-8 py-4 bg-purple-600 rounded-2xl font-black text-xs uppercase">AI Wedge</button>
+                <button onclick="launchCloak('https://gointerstellar.app')" class="px-8 py-4 glass rounded-2xl font-black text-xs uppercase">Interstellar</button>
+            </div>
+        </div>
+    </main>
 
     <script>
-        function openInternalMenu() {
-            // A simple prompt is the fastest way to navigate without a teacher seeing a menu
-            const cmd = prompt("CALC_SYSTEM_V2 \n- Enter 'ai' for Worth Analysis\n- Enter 'proxy' for Shadow Bridge\n- Enter 'decoy' for Panic Mode");
-            
-            if (cmd === "ai") {
-                triggerAIVision();
-            } else if (cmd === "proxy") {
-                launchProxy();
-            } else if (cmd === "decoy") {
-                toggleDecoy();
-            }
+        // LOAD GAMES FROM REPO
+        async function loadGames() {
+            const grid = document.getElementById('game-grid');
+            try {
+                const res = await fetch('https://raw.githubusercontent.com/selenite-cc/selenite-old/main/games.json');
+                const data = await res.json();
+                Object.keys(data).forEach(key => {
+                    const game = data[key];
+                    const card = document.createElement('div');
+                    card.className = "game-card glass p-2 rounded-2xl cursor-pointer transition-all";
+                    card.onclick = () => launchCloak(`https://cdn.jsdelivr.net/gh/selenite-cc/selenite-old@main/${key}/index.html`);
+                    card.innerHTML = `
+                        <img src="https://cdn.jsdelivr.net/gh/selenite-cc/selenite-old@main/${key}/${game.img || 'cover.svg'}" class="w-full aspect-square object-cover rounded-xl mb-2" onerror="this.src='https://via.placeholder.com/150'">
+                        <div class="text-[9px] font-black text-center truncate text-gray-400 uppercase">${game.name || key}</div>
+                    `;
+                    grid.appendChild(card);
+                });
+            } catch(e) { grid.innerHTML = "Offline Mode Active"; }
+        }
+
+        function switchView(v) {
+            ['calc-view', 'games-view', 'yt-view', 'ai-view', 'proxy-view'].forEach(id => document.getElementById(id).classList.add('hidden'));
+            document.querySelectorAll('.sidebar-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('btn-'+v).classList.add('active');
+            document.getElementById(v + '-view').classList.remove('hidden');
+        }
+
+        function launchCloak(url) {
+            const win = window.open('about:blank', '_blank');
+            win.document.title = 'Calculator';
+            const f = win.document.createElement('iframe');
+            f.style = "position:fixed;top:0;left:0;width:100%;height:100%;border:none;";
+            f.src = url;
+            win.document.body.appendChild(f);
         }
 
         async function triggerAIVision() {
@@ -86,23 +123,13 @@
             } catch (e) {}
         }
 
-        function launchProxy() {
-            const win = window.open('about:blank', '_blank');
-            win.document.title = 'Calculator'; // Even the proxy tab is named Calculator
-            const f = win.document.createElement('iframe');
-            f.style = "position:fixed;top:0;left:0;width:100%;height:100%;border:none;";
-            f.src = "https://ai-wedge.github.io"; 
-            win.document.body.appendChild(f);
-        }
-
         function toggleDecoy() {
-            const d = document.getElementById('decoy');
+            const d = document.getElementById('decoy-overlay');
             d.style.display = (d.style.display === 'block') ? 'none' : 'block';
         }
 
-        window.addEventListener('keydown', (e) => {
-            if (e.key === '`') toggleDecoy(); // Panic key
-        });
+        window.addEventListener('keydown', (e) => { if (e.key === '`') toggleDecoy(); });
+        loadGames();
     </script>
 </body>
 </html>
