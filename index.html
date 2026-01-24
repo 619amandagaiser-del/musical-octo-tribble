@@ -3,164 +3,174 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculator</title> 
+    <title>Calculator</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        :root { --accent: #a855f7; --bg: #030712; }
-        body { background: var(--bg); color: white; font-family: 'Segoe UI', Roboto, sans-serif; overflow: hidden; height: 100vh; margin: 0; }
-        .glass { background: rgba(17, 24, 39, 0.7); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.05); }
-        .sidebar-btn { position: relative; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-        .sidebar-btn.active { color: var(--accent); background: rgba(168, 85, 247, 0.1); border-right: 3px solid var(--accent); }
-        #decoy-overlay { position: fixed; inset: 0; z-index: 999999; display: none; background: white; }
-        .starship-glow { box-shadow: 0 0 20px rgba(168, 85, 247, 0.2); }
-        iframe { width: 100%; height: 100%; border: none; border-radius: 12px; }
-        .terminal-text { font-family: 'Courier New', Courier, monospace; }
+        :root { --accent: #a855f7; }
+        body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; background: #000; }
+        
+        /* THE COVER: LIVE CALCSOLVER */
+        #calc-frame {
+            width: 100%;
+            height: 100%;
+            border: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
+
+        /* THE SECRET SIDEBAR (Hidden until Hover) */
+        #sidebar {
+            position: fixed;
+            left: -240px; /* Hidden off-screen */
+            top: 0;
+            bottom: 0;
+            width: 260px;
+            background: rgba(10, 10, 10, 0.95);
+            backdrop-filter: blur(15px);
+            z-index: 1000;
+            transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border-right: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            flex-col;
+            padding: 30px 20px;
+        }
+        #sidebar:hover { left: 0; }
+        #hover-trigger {
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 15px;
+            z-index: 999;
+        }
+
+        .nav-btn {
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 10px;
+            text-align: left;
+            border-radius: 12px;
+            color: #9ca3af;
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: 0.2s;
+        }
+        .nav-btn:hover { background: rgba(168, 85, 247, 0.1); color: #a855f7; }
+        .nav-btn.active { background: rgba(168, 85, 247, 0.2); color: #a855f7; border-left: 3px solid #a855f7; }
+
+        /* MODAL INTERFACES */
+        .overlay-view {
+            position: fixed;
+            inset: 0;
+            background: #030712;
+            z-index: 500;
+            display: none;
+            flex-direction: column;
+            padding: 50px;
+            color: white;
+        }
+        
+        #panic-overlay {
+            position: fixed;
+            inset: 0;
+            background: white;
+            z-index: 10000;
+            display: none;
+        }
     </style>
 </head>
-<body class="flex">
+<body>
 
-    <div id="decoy-overlay">
-        <iframe src="https://classroom.google.com"></iframe>
+    <iframe id="calc-frame" src="https://calcsolver.net/"></iframe>
+
+    <div id="panic-overlay">
+        <iframe src="https://classroom.google.com" style="width:100%; height:100%; border:none;"></iframe>
     </div>
 
-    <nav class="w-64 bg-gray-950 border-r border-white/5 flex flex-col p-5 z-50">
+    <div id="hover-trigger"></div>
+
+    <nav id="sidebar" class="flex flex-col">
         <div class="mb-10 px-2">
-            <h1 class="font-black text-xl tracking-tighter text-white">G-HUB <span class="text-purple-500">v68</span></h1>
-            <p class="text-[9px] text-gray-500 font-bold uppercase tracking-widest">Starship Architecture</p>
-        </div>
-        
-        <div class="space-y-2 flex-1">
-            <button onclick="switchView('calc')" id="btn-calc" class="sidebar-btn active w-full p-3 flex items-center gap-3 rounded-lg text-sm font-semibold text-gray-400">
-                <span>📐</span> Calculator
-            </button>
-            <button onclick="switchView('ai')" id="btn-ai" class="sidebar-btn w-full p-3 flex items-center gap-3 rounded-lg text-sm font-semibold text-gray-400">
-                <span>🧠</span> Worth AI
-            </button>
-            <button onclick="switchView('bridge')" id="btn-bridge" class="sidebar-btn w-full p-3 flex items-center gap-3 rounded-lg text-sm font-semibold text-gray-400">
-                <span>🚀</span> Shadow Bridge
-            </button>
-            <button onclick="switchView('settings')" id="btn-settings" class="sidebar-btn w-full p-3 flex items-center gap-3 rounded-lg text-sm font-semibold text-gray-400">
-                <span>🛡️</span> Security
-            </button>
+            <h1 class="text-white font-black text-xl italic tracking-tighter">G-HUB <span class="text-purple-500">v71</span></h1>
+            <p class="text-[8px] text-gray-500 uppercase tracking-widest font-bold">Starship Architecture</p>
         </div>
 
-        <div class="mt-auto p-4 glass rounded-2xl border-purple-500/20">
-            <p class="text-[10px] font-bold text-gray-400 mb-2 uppercase">Panic Mode: <span class="text-purple-500">` KEY</span></p>
-            <button onclick="selfDestruct()" class="w-full py-2 text-[10px] font-black uppercase bg-red-500/10 text-red-500 border border-red-500/20 rounded-lg hover:bg-red-500 hover:text-white transition-all">Emergency Wipe</button>
+        <button onclick="showView('calc')" class="nav-btn active">📐 Home Calculator</button>
+        <button onclick="showView('bridge')" class="nav-btn">🚀 Shadow Bridge</button>
+        <button onclick="showView('ai')" class="nav-btn">🧠 Worth AI</button>
+        
+        <div class="mt-auto p-4 bg-white/5 rounded-2xl">
+            <p class="text-[9px] text-gray-400 font-bold uppercase mb-2">Security Level: 4</p>
+            <button onclick="location.reload()" class="w-full py-2 bg-red-500/10 text-red-500 text-[10px] font-black uppercase rounded-lg border border-red-500/20">Emergency Wipe</button>
         </div>
     </nav>
 
-    <main class="flex-1 relative flex flex-col p-4">
-        
-        <div id="calc-view" class="flex-1 h-full">
-            <iframe src="https://www.desmos.com/scientific" title="Calculator Interface"></iframe>
-        </div>
-
-        <div id="ai-view" class="hidden flex-1 flex flex-col h-full bg-gray-900/50 rounded-2xl p-6 border border-white/5">
-            <div id="ai-init" class="flex-1 flex flex-col items-center justify-center space-y-4">
-                <div class="w-16 h-16 border-4 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
-                <h2 class="terminal-text text-purple-500 text-sm">INITIALIZING WORTH AI...</h2>
+    <div id="bridge-view" class="overlay-view">
+        <div class="max-w-2xl mx-auto w-full text-center mt-20">
+            <h2 class="text-5xl font-black italic mb-2">SHADOW BRIDGE</h2>
+            <p class="text-xs text-gray-500 uppercase tracking-[0.6em] mb-12">Encrypted Starship Proxy</p>
+            
+            <div class="bg-gray-900 p-10 rounded-[3rem] border border-white/5 shadow-2xl">
+                <input type="text" id="proxy-url" placeholder="ENTER TARGET URL..." 
+                    class="w-full bg-black border border-white/10 p-5 rounded-2xl text-white text-center font-mono focus:border-purple-500 outline-none transition-all mb-6">
+                <button onclick="launchProxy()" class="w-full bg-purple-600 py-4 rounded-xl font-black text-xs uppercase shadow-lg shadow-purple-500/30">Execute Ghost Injection</button>
             </div>
-            <iframe id="ai-frame" src="https://duckduckgo.com/?q=DuckDuckGo+AI+Chat&ia=chat" class="hidden"></iframe>
+            <p class="mt-8 text-[10px] text-gray-600 italic">History is not recorded. Browsing occurs in a sandboxed about:blank environment.</p>
         </div>
+    </div>
 
-        <div id="bridge-view" class="hidden flex-1 flex flex-col items-center justify-center">
-            <div class="max-w-2xl w-full text-center space-y-8">
-                <div>
-                    <h2 class="text-4xl font-black text-white italic">SHADOW BRIDGE</h2>
-                    <p class="text-xs text-gray-500 uppercase tracking-[0.5em] mt-2">Powered by Starship Engine</p>
-                </div>
-                
-                <div class="glass p-10 rounded-[2.5rem] border-white/10 starship-glow">
-                    <input type="text" id="target-url" placeholder="Enter Destination URL..." 
-                        class="w-full bg-black/50 border border-white/10 p-5 rounded-2xl text-white text-center font-mono focus:border-purple-500 outline-none transition-all mb-6">
-                    
-                    <div class="grid grid-cols-2 gap-4">
-                        <button onclick="launch('croxy')" class="py-4 bg-purple-600 rounded-xl font-black text-xs uppercase hover:bg-purple-500 transition-all">Launch Engine A</button>
-                        <button onclick="launch('proxyium')" class="py-4 glass border-white/10 rounded-xl font-black text-xs uppercase hover:bg-white/5 transition-all">Launch Engine B</button>
-                    </div>
-                </div>
-                <p class="text-[10px] text-gray-600 italic">Traffic is routed through an encrypted Starship node. Destination is cloaked as 'about:blank'.</p>
+    <div id="ai-view" class="overlay-view">
+        <div class="flex-1 flex flex-col">
+            <div class="mb-4 flex justify-between">
+                <h2 class="text-xl font-black text-purple-500 italic uppercase">Worth AI // Terminal</h2>
+                <button onclick="showView('calc')" class="text-xs text-gray-500 uppercase font-bold">Close Terminal</button>
             </div>
+            <iframe src="https://duckduckgo.com/?q=DuckDuckGo+AI+Chat&ia=chat" class="rounded-2xl border border-white/5 shadow-2xl"></iframe>
         </div>
-
-        <div id="settings-view" class="hidden flex-1 p-10">
-            <h2 class="text-2xl font-black mb-10">SECURITY PROTOCOLS</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="glass p-6 rounded-2xl">
-                    <h3 class="text-purple-500 font-bold mb-2 uppercase text-xs">Cloak Tab</h3>
-                    <p class="text-xs text-gray-400 mb-4">Changes the tab favicon and name to 'Google Docs' for extra stealth.</p>
-                    <button onclick="cloakTab()" class="px-6 py-2 bg-white/5 border border-white/10 rounded-lg text-xs font-bold">Activate Cloak</button>
-                </div>
-                <div class="glass p-6 rounded-2xl">
-                    <h3 class="text-purple-500 font-bold mb-2 uppercase text-xs">Network Shield</h3>
-                    <p class="text-xs text-gray-400 mb-4">Simulates a Starship VPN tunnel for encrypted browsing.</p>
-                    <button id="vpn-toggle" onclick="toggleShield()" class="px-6 py-2 bg-white/5 border border-white/10 rounded-lg text-xs font-bold">Initialize Shield</button>
-                </div>
-            </div>
-        </div>
-    </main>
+    </div>
 
     <script>
-        function switchView(view) {
-            ['calc', 'ai', 'bridge', 'settings'].forEach(v => {
-                document.getElementById(v + '-view').classList.add('hidden');
-                document.getElementById('btn-' + v).classList.remove('active');
-            });
-            document.getElementById(view + '-view').classList.remove('hidden');
-            document.getElementById('btn-' + view).classList.add('active');
-
-            if(view === 'ai') {
-                setTimeout(() => {
-                    document.getElementById('ai-init').classList.add('hidden');
-                    document.getElementById('ai-frame').classList.remove('hidden');
-                }, 1500);
+        function showView(view) {
+            // Hide all overlays
+            document.querySelectorAll('.overlay-view').forEach(v => v.style.display = 'none');
+            
+            // Set active button
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            
+            if (view === 'calc') {
+                // Keep everything hidden to show the calcsolver frame
+            } else {
+                document.getElementById(view + '-view').style.display = 'flex';
+                // Highlight the button (find by text)
+                const buttons = document.querySelectorAll('.nav-btn');
+                buttons.forEach(btn => {
+                    if(btn.innerText.toLowerCase().includes(view)) btn.classList.add('active');
+                });
             }
         }
 
-        function launch(engine) {
-            let url = document.getElementById('target-url').value;
+        function launchProxy() {
+            let url = document.getElementById('proxy-url').value;
             if(!url) return;
             if(!url.startsWith('http')) url = 'https://' + url;
-
-            const proxy = engine === 'croxy' 
-                ? "https://www.croxyproxy.com/_p.php?u=" 
-                : "https://proxyium.com/search?url=";
 
             const win = window.open('about:blank', '_blank');
             win.document.title = 'Calculator'; 
             const f = win.document.createElement('iframe');
             f.style = "position:fixed;top:0;left:0;width:100%;height:100%;border:none;background:white;";
-            f.src = proxy + encodeURIComponent(url);
+            f.src = "https://www.croxyproxy.com/_p.php?u=" + encodeURIComponent(url);
             win.document.body.appendChild(f);
         }
 
-        function cloakTab() {
-            document.title = "Google Docs";
-            const link = document.querySelector("link[rel*='icon']") || document.createElement('link');
-            link.type = 'image/x-icon';
-            link.rel = 'shortcut icon';
-            link.href = 'https://ssl.gstatic.com/docs/documents/images/kix-favicon7.ico';
-            document.getElementsByTagName('head')[0].appendChild(link);
-            alert("Tab cloaked as Google Docs.");
-        }
-
-        function toggleShield() {
-            const btn = document.getElementById('vpn-toggle');
-            btn.innerText = "Shield Active";
-            btn.classList.add('bg-green-500/20', 'text-green-500', 'border-green-500/50');
-        }
-
-        function selfDestruct() {
-            if(confirm("Confirm total session wipe?")) {
-                window.location.href = "https://google.com";
-            }
-        }
-
+        // PANIC KEY: `
         window.onkeydown = (e) => {
             if (e.key === '`') {
-                const decoy = document.getElementById('decoy-overlay');
-                decoy.style.display = decoy.style.display === 'block' ? 'none' : 'block';
+                const panic = document.getElementById('panic-overlay');
+                panic.style.display = (panic.style.display === 'block') ? 'none' : 'block';
             }
         };
     </script>
