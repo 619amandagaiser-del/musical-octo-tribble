@@ -6,133 +6,163 @@
     <title>Calculator</title> 
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        :root { --accent: #8a2be2; --bg: #02040a; }
-        body { background: var(--bg); color: white; font-family: 'Inter', sans-serif; overflow: hidden; height: 100vh; margin: 0; }
-        .glass { background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.05); }
-        .sidebar-btn.active { color: var(--accent); border-left: 4px solid var(--accent); background: linear-gradient(90deg, rgba(138,43,226,0.15) 0%, transparent 100%); }
-        iframe { width: 100%; height: 100%; border: none; border-radius: 1.5rem; }
-        #decoy-overlay { position: fixed; inset: 0; z-index: 100000; background: white; display: none; }
-        .typing { overflow: hidden; white-space: nowrap; border-right: 2px solid var(--accent); animation: typing 1.5s steps(30, end), blink .75s step-end infinite; }
-        @keyframes typing { from { width: 0 } to { width: 100% } }
-        @keyframes blink { from, to { border-color: transparent } 50% { border-color: var(--accent) } }
+        :root { --accent: #a855f7; --bg: #030712; }
+        body { background: var(--bg); color: white; font-family: 'Segoe UI', Roboto, sans-serif; overflow: hidden; height: 100vh; margin: 0; }
+        .glass { background: rgba(17, 24, 39, 0.7); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.05); }
+        .sidebar-btn { position: relative; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .sidebar-btn.active { color: var(--accent); background: rgba(168, 85, 247, 0.1); border-right: 3px solid var(--accent); }
+        #decoy-overlay { position: fixed; inset: 0; z-index: 999999; display: none; background: white; }
+        .starship-glow { box-shadow: 0 0 20px rgba(168, 85, 247, 0.2); }
+        iframe { width: 100%; height: 100%; border: none; border-radius: 12px; }
+        .terminal-text { font-family: 'Courier New', Courier, monospace; }
     </style>
 </head>
 <body class="flex">
 
-    <div id="decoy-overlay"><iframe src="https://classroom.google.com"></iframe></div>
+    <div id="decoy-overlay">
+        <iframe src="https://classroom.google.com"></iframe>
+    </div>
 
-    <nav class="w-20 md:w-64 bg-black border-r border-white/5 flex flex-col p-6 z-50">
-        <div class="mb-10 p-4 glass rounded-2xl border-purple-500/20">
-            <h1 class="font-black text-[11px] text-purple-400 uppercase tracking-[0.2em]">G-HUB v67</h1>
-            <p class="text-[7px] text-gray-500 font-bold uppercase mt-1">Vista Unified // Authorized Access</p>
+    <nav class="w-64 bg-gray-950 border-r border-white/5 flex flex-col p-5 z-50">
+        <div class="mb-10 px-2">
+            <h1 class="font-black text-xl tracking-tighter text-white">G-HUB <span class="text-purple-500">v68</span></h1>
+            <p class="text-[9px] text-gray-500 font-bold uppercase tracking-widest">Starship Architecture</p>
         </div>
         
-        <div class="space-y-1 flex-1 overflow-y-auto">
-            <button onclick="switchView('calc')" id="btn-calc" class="sidebar-btn active w-full p-4 flex items-center gap-4 text-[10px] font-black uppercase text-gray-400 transition-all">📐 Calculator</button>
-            <button onclick="switchView('ai')" id="btn-ai" class="sidebar-btn w-full p-4 flex items-center gap-4 text-[10px] font-black uppercase text-gray-400 transition-all">🧠 Worth AI</button>
-            <button onclick="switchView('vpn')" id="btn-vpn" class="sidebar-btn w-full p-4 flex items-center gap-4 text-[10px] font-black uppercase text-gray-400 transition-all">🛡️ VPN Shield</button>
-            <button onclick="switchView('proxy')" id="btn-proxy" class="sidebar-btn w-full p-4 flex items-center gap-4 text-[10px] font-black uppercase text-gray-400 transition-all">🌐 Shadow Bridge</button>
+        <div class="space-y-2 flex-1">
+            <button onclick="switchView('calc')" id="btn-calc" class="sidebar-btn active w-full p-3 flex items-center gap-3 rounded-lg text-sm font-semibold text-gray-400">
+                <span>📐</span> Calculator
+            </button>
+            <button onclick="switchView('ai')" id="btn-ai" class="sidebar-btn w-full p-3 flex items-center gap-3 rounded-lg text-sm font-semibold text-gray-400">
+                <span>🧠</span> Worth AI
+            </button>
+            <button onclick="switchView('bridge')" id="btn-bridge" class="sidebar-btn w-full p-3 flex items-center gap-3 rounded-lg text-sm font-semibold text-gray-400">
+                <span>🚀</span> Shadow Bridge
+            </button>
+            <button onclick="switchView('settings')" id="btn-settings" class="sidebar-btn w-full p-3 flex items-center gap-3 rounded-lg text-sm font-semibold text-gray-400">
+                <span>🛡️</span> Security
+            </button>
         </div>
-        
-        <div class="pt-6 border-t border-white/5">
-            <button onclick="selfDestruct()" class="w-full p-3 text-[9px] font-black uppercase text-red-500 glass rounded-xl hover:bg-red-500/10 transition-all">Self-Destruct</button>
+
+        <div class="mt-auto p-4 glass rounded-2xl border-purple-500/20">
+            <p class="text-[10px] font-bold text-gray-400 mb-2 uppercase">Panic Mode: <span class="text-purple-500">` KEY</span></p>
+            <button onclick="selfDestruct()" class="w-full py-2 text-[10px] font-black uppercase bg-red-500/10 text-red-500 border border-red-500/20 rounded-lg hover:bg-red-500 hover:text-white transition-all">Emergency Wipe</button>
         </div>
     </nav>
 
-    <main class="flex-1 relative flex flex-col overflow-hidden">
+    <main class="flex-1 relative flex flex-col p-4">
         
-        <div id="calc-view" class="flex-1 p-6">
-            <iframe src="https://calcsolver.net/" class="shadow-2xl"></iframe>
+        <div id="calc-view" class="flex-1 h-full">
+            <iframe src="https://www.desmos.com/scientific" title="Calculator Interface"></iframe>
         </div>
 
-        <div id="ai-view" class="hidden flex-1 p-6 flex flex-col">
-            <div id="ai-loader" class="flex-1 flex items-center justify-center bg-[#02040a] rounded-3xl z-10">
-                <div class="text-center">
-                    <h2 class="typing text-purple-500 font-mono text-sm uppercase tracking-widest">Worth AI: Initializing...</h2>
-                    <p class="text-[8px] text-gray-600 mt-2 font-mono uppercase">Decryption in progress</p>
-                </div>
+        <div id="ai-view" class="hidden flex-1 flex flex-col h-full bg-gray-900/50 rounded-2xl p-6 border border-white/5">
+            <div id="ai-init" class="flex-1 flex flex-col items-center justify-center space-y-4">
+                <div class="w-16 h-16 border-4 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
+                <h2 class="terminal-text text-purple-500 text-sm">INITIALIZING WORTH AI...</h2>
             </div>
-            <iframe id="ai-frame" src="https://duckduckgo.com/?q=DuckDuckGo+AI+Chat&ia=chat" class="hidden shadow-2xl"></iframe>
+            <iframe id="ai-frame" src="https://duckduckgo.com/?q=DuckDuckGo+AI+Chat&ia=chat" class="hidden"></iframe>
         </div>
 
-        <div id="vpn-view" class="hidden flex-1 p-10 flex flex-col items-center justify-center">
-            <div class="max-w-md w-full glass p-10 rounded-[3rem] border-white/10 text-center">
-                <h2 class="text-xl font-black text-purple-500 uppercase mb-8 italic tracking-tighter">Titan VPN Protocol</h2>
-                <div class="grid grid-cols-2 gap-2 mb-6">
-                    <button onclick="setSrv('US-East')" class="srv-btn p-3 glass rounded-xl text-[9px] font-bold uppercase hover:bg-white/5">🇺🇸 US-East</button>
-                    <button onclick="setSrv('JP-Tokyo')" class="srv-btn p-3 glass rounded-xl text-[9px] font-bold uppercase hover:bg-white/5">🇯🇵 JP-Tokyo</button>
+        <div id="bridge-view" class="hidden flex-1 flex flex-col items-center justify-center">
+            <div class="max-w-2xl w-full text-center space-y-8">
+                <div>
+                    <h2 class="text-4xl font-black text-white italic">SHADOW BRIDGE</h2>
+                    <p class="text-xs text-gray-500 uppercase tracking-[0.5em] mt-2">Powered by Starship Engine</p>
                 </div>
-                <button onclick="toggleVPN()" id="vpn-btn" class="w-full py-4 bg-white text-black rounded-xl font-black text-xs uppercase transition-all">Connect Tunnel</button>
-            </div>
-        </div>
-
-        <div id="proxy-view" class="hidden flex-1 p-10 flex flex-col items-center justify-center">
-            <div class="max-w-xl w-full text-center">
-                <h2 class="text-3xl font-black italic text-white uppercase mb-10 tracking-[0.4em]">Shadow Bridge</h2>
-                <div class="glass p-8 rounded-[2rem] space-y-4">
-                    <input type="text" id="proxy-url" placeholder="ENTER TARGET..." class="w-full bg-black/40 border border-white/10 p-4 rounded-xl text-white text-center font-mono outline-none focus:border-purple-500 transition-all">
-                    <button onclick="launchGhost()" class="w-full py-4 bg-purple-600 rounded-xl font-black text-xs uppercase shadow-lg shadow-purple-500/20">Execute Injection</button>
+                
+                <div class="glass p-10 rounded-[2.5rem] border-white/10 starship-glow">
+                    <input type="text" id="target-url" placeholder="Enter Destination URL..." 
+                        class="w-full bg-black/50 border border-white/10 p-5 rounded-2xl text-white text-center font-mono focus:border-purple-500 outline-none transition-all mb-6">
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <button onclick="launch('croxy')" class="py-4 bg-purple-600 rounded-xl font-black text-xs uppercase hover:bg-purple-500 transition-all">Launch Engine A</button>
+                        <button onclick="launch('proxyium')" class="py-4 glass border-white/10 rounded-xl font-black text-xs uppercase hover:bg-white/5 transition-all">Launch Engine B</button>
+                    </div>
                 </div>
+                <p class="text-[10px] text-gray-600 italic">Traffic is routed through an encrypted Starship node. Destination is cloaked as 'about:blank'.</p>
             </div>
         </div>
 
+        <div id="settings-view" class="hidden flex-1 p-10">
+            <h2 class="text-2xl font-black mb-10">SECURITY PROTOCOLS</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="glass p-6 rounded-2xl">
+                    <h3 class="text-purple-500 font-bold mb-2 uppercase text-xs">Cloak Tab</h3>
+                    <p class="text-xs text-gray-400 mb-4">Changes the tab favicon and name to 'Google Docs' for extra stealth.</p>
+                    <button onclick="cloakTab()" class="px-6 py-2 bg-white/5 border border-white/10 rounded-lg text-xs font-bold">Activate Cloak</button>
+                </div>
+                <div class="glass p-6 rounded-2xl">
+                    <h3 class="text-purple-500 font-bold mb-2 uppercase text-xs">Network Shield</h3>
+                    <p class="text-xs text-gray-400 mb-4">Simulates a Starship VPN tunnel for encrypted browsing.</p>
+                    <button id="vpn-toggle" onclick="toggleShield()" class="px-6 py-2 bg-white/5 border border-white/10 rounded-lg text-xs font-bold">Initialize Shield</button>
+                </div>
+            </div>
+        </div>
     </main>
 
     <script>
-        let isVPN = false;
-        let srv = "None";
+        function switchView(view) {
+            ['calc', 'ai', 'bridge', 'settings'].forEach(v => {
+                document.getElementById(v + '-view').classList.add('hidden');
+                document.getElementById('btn-' + v).classList.remove('active');
+            });
+            document.getElementById(view + '-view').classList.remove('hidden');
+            document.getElementById('btn-' + view).classList.add('active');
 
-        function switchView(v) {
-            ['calc-view', 'ai-view', 'vpn-view', 'proxy-view'].forEach(id => document.getElementById(id).classList.add('hidden'));
-            document.querySelectorAll('.sidebar-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById('btn-'+v).classList.add('active');
-            document.getElementById(v + '-view').classList.remove('hidden');
-
-            if (v === 'ai') {
+            if(view === 'ai') {
                 setTimeout(() => {
-                    document.getElementById('ai-loader').style.display = 'none';
+                    document.getElementById('ai-init').classList.add('hidden');
                     document.getElementById('ai-frame').classList.remove('hidden');
-                }, 2000);
+                }, 1500);
             }
         }
 
-        function setSrv(name) {
-            srv = name;
-            document.querySelectorAll('.srv-btn').forEach(b => b.style.borderColor = "transparent");
-            event.target.style.borderColor = "#8a2be2";
-        }
-
-        function toggleVPN() {
-            const btn = document.getElementById('vpn-btn');
-            if (!isVPN) {
-                isVPN = true;
-                btn.innerText = "Tunnel Active";
-                btn.classList.add('bg-green-600', 'text-white');
-            } else { location.reload(); }
-        }
-
-        function launchGhost() {
-            let url = document.getElementById('proxy-url').value;
+        function launch(engine) {
+            let url = document.getElementById('target-url').value;
             if(!url) return;
             if(!url.startsWith('http')) url = 'https://' + url;
+
+            const proxy = engine === 'croxy' 
+                ? "https://www.croxyproxy.com/_p.php?u=" 
+                : "https://proxyium.com/search?url=";
+
             const win = window.open('about:blank', '_blank');
             win.document.title = 'Calculator'; 
             const f = win.document.createElement('iframe');
             f.style = "position:fixed;top:0;left:0;width:100%;height:100%;border:none;background:white;";
-            f.src = "https://www.croxyproxy.com/_p.php?u=" + encodeURIComponent(url);
+            f.src = proxy + encodeURIComponent(url);
             win.document.body.appendChild(f);
         }
 
-        function selfDestruct() {
-            if(confirm("Confirm?")) { window.location.href = "https://google.com"; }
+        function cloakTab() {
+            document.title = "Google Docs";
+            const link = document.querySelector("link[rel*='icon']") || document.createElement('link');
+            link.type = 'image/x-icon';
+            link.rel = 'shortcut icon';
+            link.href = 'https://ssl.gstatic.com/docs/documents/images/kix-favicon7.ico';
+            document.getElementsByTagName('head')[0].appendChild(link);
+            alert("Tab cloaked as Google Docs.");
         }
 
-        window.addEventListener('keydown', (e) => { 
-            if (e.key === '`') {
-                const d = document.getElementById('decoy-overlay');
-                d.style.display = (d.style.display === 'block') ? 'none' : 'block';
+        function toggleShield() {
+            const btn = document.getElementById('vpn-toggle');
+            btn.innerText = "Shield Active";
+            btn.classList.add('bg-green-500/20', 'text-green-500', 'border-green-500/50');
+        }
+
+        function selfDestruct() {
+            if(confirm("Confirm total session wipe?")) {
+                window.location.href = "https://google.com";
             }
-        });
+        }
+
+        window.onkeydown = (e) => {
+            if (e.key === '`') {
+                const decoy = document.getElementById('decoy-overlay');
+                decoy.style.display = decoy.style.display === 'block' ? 'none' : 'block';
+            }
+        };
     </script>
 </body>
 </html>
