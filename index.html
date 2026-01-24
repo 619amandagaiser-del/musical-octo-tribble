@@ -1,35 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Vista Unified // Student Portal</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
-    
-    <style>
-        :root { --accent: #5ca3ff; --bg: #03070b; --glass: rgba(255, 255, 255, 0.03); }
-        body { background: var(--bg); color: white; font-family: 'Inter', sans-serif; overflow: hidden; height: 100vh; margin: 0; }
-        
-        .glass { background: var(--glass); backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.05); }
-        .sidebar-btn { transition: all 0.2s ease; border-left: 3px solid transparent; color: #6b7280; }
-        .sidebar-btn.active { 
-            color: var(--accent); 
-            border-left: 3px solid var(--accent); 
-            background: linear-gradient(90deg, rgba(92,163,255,0.1) 0%, transparent 100%); 
-        }
-        
-        #grid-container::-webkit-scrollbar { display: none; }
-        .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
-        #decoy-overlay { position: fixed; inset: 0; z-index: 99999; background: white; display: none; }
-        iframe { width: 100%; height: 100%; border: none; background: white; }
-        
-        .item-card { transition: transform 0.2s; }
-        .item-card:hover { transform: translateY(-5px); border-color: var(--accent); }
-    </style>
-</head>
 <body class="flex">
-
     <div id="decoy-overlay">
         <iframe src="https://en.wikipedia.org/wiki/Special:Random"></iframe>
         <div onclick="toggleDecoy()" class="fixed bottom-0 right-0 w-16 h-16 cursor-help"></div>
@@ -42,139 +11,50 @@
         </div>
 
         <div class="space-y-1 flex-1 overflow-y-auto">
-            <a href="https://login.classlink.com/my/vistausd" target="_blank" class="w-full p-3 flex items-center gap-4 text-[11px] font-bold text-gray-400 hover:text-blue-400 transition-all">📘 ClassLink</a>
-            <div class="my-4 border-t border-white/5 pt-4"></div>
+            <button onclick="switchView('solver')" id="btn-solver" class="sidebar-btn active w-full p-3 flex items-center gap-4 text-[11px] font-bold uppercase">📟 CalcSolver</button>
             
-            <button onclick="switchView('games')" id="btn-games" class="sidebar-btn active w-full p-3 flex items-center gap-4 text-[11px] font-bold uppercase">🎮 Database</button>
             <button onclick="switchView('ai')" id="btn-ai" class="sidebar-btn w-full p-3 flex items-center gap-4 text-[11px] font-bold uppercase">🧠 Titan AI</button>
             <button onclick="switchView('cloak')" id="btn-cloak" class="sidebar-btn w-full p-3 flex items-center gap-4 text-[11px] font-bold uppercase">🕶️ Proxies</button>
-            <button onclick="switchView('terminal')" id="btn-terminal" class="sidebar-btn w-full p-3 flex items-center gap-4 text-[11px] font-bold uppercase">📟 Terminal</button>
             <button onclick="switchView('chat')" id="btn-chat" class="sidebar-btn w-full p-3 flex items-center gap-4 text-[11px] font-bold uppercase">💬 Lobby</button>
         </div>
-
-        <div class="glass p-4 rounded-2xl text-[9px] font-bold text-gray-500 uppercase mt-4">
-            <div class="mb-1"><span class="status-dot bg-green-500 mr-2"></span>Users: <span id="online-count" class="text-white">1</span></div>
-            <div><span id="gp-dot" class="status-dot bg-red-500 mr-2"></span>Gamepad: <span id="gp-text" class="text-white">Off</span></div>
-        </div>
-        <button onclick="toggleDecoy()" class="mt-4 p-3 glass rounded-xl text-[9px] font-black uppercase text-red-500 border-red-500/20 hover:bg-red-500/10 transition-all">Panic Mode ( ` )</button>
+        
+        <button onclick="toggleDecoy()" class="mt-4 p-3 glass rounded-xl text-[9px] font-black uppercase text-red-500 border-red-500/20">Panic Mode ( ` )</button>
     </nav>
 
-    <main class="flex-1 flex flex-col relative overflow-hidden p-6">
+    <main class="flex-1 flex flex-col relative overflow-hidden">
         
-        <header id="main-header" class="mb-6 flex items-center gap-4">
-            <input type="text" id="search-bar" oninput="searchGames()" placeholder="SEARCH SYSTEM ARCHIVE..." class="flex-1 bg-white/5 border border-white/10 p-4 rounded-xl text-xs font-bold outline-none focus:border-blue-500 transition-all">
-        </header>
-
-        <div id="view-games" class="flex-1 overflow-y-auto">
-            <div id="grid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4"></div>
+        <div id="view-solver" class="flex-1 w-full h-full">
+            <object data="https://calcsolver.net/" class="w-full h-full"></object>
         </div>
 
-        <div id="view-ai" class="hidden flex-1 flex flex-col">
-            <div class="glass flex-1 rounded-3xl overflow-hidden flex flex-col">
-                <div class="p-4 border-b border-white/5 bg-blue-500/5 text-[10px] font-black uppercase text-blue-400">Titan Academic AI</div>
+        <div id="view-ai" class="hidden flex-1 p-6 flex flex-col">
+            <div class="glass flex-1 rounded-3xl overflow-hidden">
                 <iframe src="https://duckduckgo.com/?q=DuckDuckGo+AI+Chat&ia=chat"></iframe>
             </div>
         </div>
 
-        <div id="view-cloak" class="hidden flex-1 flex flex-col items-center justify-center">
+        <div id="view-cloak" class="hidden flex-1 flex flex-col items-center justify-center p-6">
             <div class="glass p-10 rounded-[40px] w-full max-w-lg text-center">
-                <h2 class="text-4xl font-black italic mb-2 uppercase tracking-tighter">Shadow Proxy</h2>
-                <p class="text-gray-500 text-[10px] font-bold mb-8 uppercase">Launches in about:blank to bypass history</p>
-                <input type="text" id="cloak-url" placeholder="Enter Destination URL..." class="w-full bg-black border border-white/10 p-4 rounded-2xl mb-4 text-center outline-none focus:border-blue-500">
-                <button onclick="launchManualCloak()" class="w-full bg-blue-600 p-4 rounded-2xl font-black uppercase text-sm shadow-lg shadow-blue-600/20">Initialize Link</button>
+                <h2 class="text-4xl font-black italic mb-2 uppercase">Shadow Proxy</h2>
+                <input type="text" id="cloak-url" placeholder="Enter URL..." class="w-full bg-black border border-white/10 p-4 rounded-2xl mb-4 text-center outline-none">
+                <button onclick="launchManualCloak()" class="w-full bg-blue-600 p-4 rounded-2xl font-black uppercase">Initialize Link</button>
             </div>
         </div>
 
-        <div id="view-terminal" class="hidden flex-1 flex flex-col">
-            <div class="glass flex-1 rounded-3xl overflow-hidden flex flex-col bg-black">
-                <div class="p-2 border-b border-white/5 flex items-center gap-3 px-6">
-                    <span class="text-[9px] font-mono text-green-500">ROOT@TITAN:~#</span>
-                    <input type="text" id="terminal-input" class="bg-transparent text-[10px] text-green-500 font-mono outline-none w-full" placeholder="sh run_proxy.sh --url=" onkeypress="if(event.key==='Enter') launchTerminal()">
-                </div>
-                <iframe id="terminal-frame" class="hidden flex-1"></iframe>
-                <div id="terminal-placeholder" class="flex-1 flex items-center justify-center font-mono text-green-900 text-[10px] animate-pulse">AWAITING ENCRYPTED COMMAND...</div>
-            </div>
-        </div>
-
-        <div id="view-chat" class="hidden flex-1 flex flex-col">
+        <div id="view-chat" class="hidden flex-1 p-6 flex flex-col">
             <div id="chat-messages" class="flex-1 glass rounded-2xl p-4 overflow-y-auto mb-4 space-y-3"></div>
             <div class="flex gap-2">
-                <input type="text" id="chat-input" onkeypress="if(event.key==='Enter') sendMessage()" class="flex-1 bg-white/5 border border-white/10 p-4 rounded-xl outline-none text-xs" placeholder="Broadcast to Titan users...">
-                <button onclick="sendMessage()" class="bg-blue-600 px-8 rounded-xl font-black uppercase text-xs">Send</button>
+                <input type="text" id="chat-input" onkeypress="if(event.key==='Enter') sendMessage()" class="flex-1 bg-white/5 border border-white/10 p-4 rounded-xl outline-none" placeholder="Broadcast...">
+                <button onclick="sendMessage()" class="bg-blue-600 px-8 rounded-xl font-black uppercase">Send</button>
             </div>
         </div>
     </main>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, push, onChildAdded, set, onDisconnect, onValue, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyC_dYbJKb9EjfENjdmrhE0UvHPPBt5cWkY",
-            authDomain: "moonlight-a12a1.firebaseapp.com",
-            databaseURL: "https://moonlight-a12a1-default-rtdb.firebaseio.com",
-            projectId: "moonlight-a12a1",
-            storageBucket: "moonlight-a12a1.firebasestorage.app",
-            messagingSenderId: "508476856908",
-            appId: "1:508476856908:web:59598f0583994deb54b2e9"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
-        const chatRef = ref(db, 'messages');
-
-        window.sendMessage = () => {
-            const input = document.getElementById('chat-input');
-            const user = localStorage.getItem('ghub_user') || 'Guest';
-            if(input.value.trim() === "/clear") { remove(chatRef); input.value = ""; return; }
-            if(input.value.trim()) {
-                push(chatRef, { user, text: input.value });
-                input.value = "";
-            }
-        };
-
-        onChildAdded(chatRef, (s) => {
-            const d = s.val();
-            const m = document.getElementById('chat-messages');
-            const el = document.createElement('div');
-            el.className = "bg-white/5 p-3 rounded-xl border-l-2 border-blue-500";
-            el.innerHTML = `<div class="text-[8px] font-black text-blue-400 uppercase">${d.user}</div><div class="text-xs text-gray-200">${d.text}</div>`;
-            m.appendChild(el);
-            m.scrollTop = m.scrollHeight;
-        });
-
-        const u = localStorage.getItem('ghub_user') || 'Titan_'+Math.floor(Math.random()*999);
-        localStorage.setItem('ghub_user', u);
-        const pRef = ref(db, `online/${u.replace(/\W/g,'')}`);
-        set(pRef, { name: u });
-        onDisconnect(pRef).remove();
-        onValue(ref(db, 'online'), (s) => document.getElementById('online-count').innerText = s.size || 1);
-    </script>
-
     <script>
-        let allGames = [];
-
-        async function init() {
-            const savedColor = localStorage.getItem('titan_theme') || '#5ca3ff';
-            document.documentElement.style.setProperty('--accent', savedColor);
-            
-            try {
-                const res = await fetch('https://raw.githubusercontent.com/selenite-cc/selenite-old/main/games.json');
-                const data = await res.json();
-                allGames = Object.keys(data).map(k => ({
-                    title: data[k].name || k,
-                    url: `https://cdn.jsdelivr.net/gh/selenite-cc/selenite-old@main/${k}/index.html`,
-                    img: `https://cdn.jsdelivr.net/gh/selenite-cc/selenite-old@main/${k}/${data[k].img || 'cover.svg'}`
-                }));
-                render(allGames);
-            } catch(e) { console.error("Database Connection Failed"); }
-        }
-
         function switchView(v) {
             // Hide all views
-            ['view-games', 'view-ai', 'view-cloak', 'view-terminal', 'view-chat', 'main-header'].forEach(id => {
-                const el = document.getElementById(id);
-                if(el) el.classList.add('hidden');
+            ['view-solver', 'view-ai', 'view-cloak', 'view-chat'].forEach(id => {
+                document.getElementById(id).classList.add('hidden');
             });
 
             // Remove active button classes
@@ -183,57 +63,16 @@
             // Show selected view
             document.getElementById('view-' + v).classList.remove('hidden');
             document.getElementById('btn-' + v).classList.add('active');
-            
-            // Show search bar only on games
-            if(v === 'games') document.getElementById('main-header').classList.remove('hidden');
-        }
-
-        function render(list) {
-            const g = document.getElementById('grid');
-            g.innerHTML = '';
-            list.forEach(i => {
-                const d = document.createElement('div');
-                d.className = "item-card glass p-2 rounded-2xl cursor-pointer hover:border-blue-500/50 transition-all";
-                d.onclick = () => launchCloak(i.url);
-                d.innerHTML = `
-                    <img src="${i.img}" class="w-full aspect-[3/4] object-cover rounded-xl mb-2" onerror="this.src='https://raw.githubusercontent.com/selenite-cc/selenite-old/main/cover.svg'">
-                    <div class="text-[8px] font-black text-center truncate text-gray-500 uppercase">${i.title}</div>
-                `;
-                g.appendChild(d);
-            });
-        }
-
-        function searchGames() {
-            const t = document.getElementById('search-bar').value.toLowerCase();
-            const f = allGames.filter(g => g.title.toLowerCase().includes(t));
-            render(f);
-        }
-
-        function launchCloak(url) {
-            const win = window.open('about:blank', '_blank');
-            if(win) {
-                win.document.title = 'Google Drive';
-                const f = win.document.createElement('iframe');
-                f.style = "position:fixed;top:0;left:0;width:100%;height:100%;border:none;background:white;";
-                f.src = url;
-                win.document.body.appendChild(f);
-            } else {
-                alert("Please enable pop-ups for stealth launch.");
-            }
         }
 
         function launchManualCloak() {
             let u = document.getElementById('cloak-url').value;
             if(!u.startsWith('http')) u = 'https://' + u;
-            launchCloak(u);
-        }
-
-        function launchTerminal() {
-            const url = document.getElementById('terminal-input').value;
-            const f = document.getElementById('terminal-frame');
-            f.src = url.startsWith('http') ? url : 'https://' + url;
-            f.classList.remove('hidden');
-            document.getElementById('terminal-placeholder').classList.add('hidden');
+            
+            // Launch in about:blank for total stealth
+            const win = window.open('about:blank', '_blank');
+            win.document.body.innerHTML = `<object data="${u}" style="position:fixed;top:0;left:0;width:100%;height:100%;border:none;"></object>`;
+            win.document.title = "Google Drive";
         }
 
         function toggleDecoy() {
@@ -241,16 +80,7 @@
             d.style.display = (d.style.display === 'block') ? 'none' : 'block';
         }
 
-        window.addEventListener('keydown', (e) => { 
-            if(e.key === '`') toggleDecoy(); 
-        });
-
-        window.addEventListener("gamepadconnected", () => {
-            document.getElementById('gp-dot').className = "status-dot bg-green-500 mr-2";
-            document.getElementById('gp-text').innerText = "Active";
-        });
-
-        init();
+        window.addEventListener('keydown', (e) => { if(e.key === '`') toggleDecoy(); });
     </script>
 </body>
 </html>
