@@ -6,148 +6,133 @@
     <title>Calculator</title> 
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        :root { --accent: #8a2be2; --bg: #03070b; }
+        :root { --accent: #8a2be2; --bg: #02040a; }
         body { background: var(--bg); color: white; font-family: 'Inter', sans-serif; overflow: hidden; height: 100vh; margin: 0; }
-        .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.05); }
-        .sidebar-btn.active { color: var(--accent); border-left: 3px solid var(--accent); background: linear-gradient(90deg, rgba(138,43,226,0.1) 0%, transparent 100%); }
+        .glass { background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.05); }
+        .sidebar-btn.active { color: var(--accent); border-left: 4px solid var(--accent); background: linear-gradient(90deg, rgba(138,43,226,0.15) 0%, transparent 100%); }
         iframe { width: 100%; height: 100%; border: none; border-radius: 1.5rem; }
-        #decoy-overlay { position: fixed; inset: 0; z-index: 99999; background: white; display: none; }
+        #decoy-overlay { position: fixed; inset: 0; z-index: 100000; background: white; display: none; }
+        .typing { overflow: hidden; white-space: nowrap; border-right: 2px solid var(--accent); animation: typing 1.5s steps(30, end), blink .75s step-end infinite; }
+        @keyframes typing { from { width: 0 } to { width: 100% } }
+        @keyframes blink { from, to { border-color: transparent } 50% { border-color: var(--accent) } }
     </style>
 </head>
 <body class="flex">
 
-    <div id="decoy-overlay"><iframe src="https://en.wikipedia.org/wiki/Mathematical_analysis"></iframe></div>
+    <div id="decoy-overlay"><iframe src="https://classroom.google.com"></iframe></div>
 
     <nav class="w-20 md:w-64 bg-black border-r border-white/5 flex flex-col p-6 z-50">
-        <div class="mb-10 p-2 bg-purple-600/5 rounded-xl border border-purple-500/10">
-            <h1 class="font-black text-[10px] text-purple-400 uppercase tracking-tighter">Vista Unified</h1>
-            <p class="text-[7px] text-gray-500 font-bold uppercase">Workstation v61</p>
+        <div class="mb-10 p-4 glass rounded-2xl border-purple-500/20">
+            <h1 class="font-black text-[11px] text-purple-400 uppercase tracking-[0.2em]">G-HUB v67</h1>
+            <p class="text-[7px] text-gray-500 font-bold uppercase mt-1">Vista Unified // Authorized Access</p>
         </div>
         
         <div class="space-y-1 flex-1 overflow-y-auto">
-            <button onclick="switchView('calc')" id="btn-calc" class="sidebar-btn active w-full p-3 flex items-center gap-4 text-[11px] font-bold uppercase text-gray-400 transition-all">📐 Calculator</button>
-            <button onclick="switchView('proxy')" id="btn-proxy" class="sidebar-btn w-full p-3 flex items-center gap-4 text-[11px] font-bold uppercase text-gray-400 transition-all">🌐 Shadow Bridge</button>
-            <button onclick="switchView('games')" id="btn-games" class="sidebar-btn w-full p-3 flex items-center gap-4 text-[11px] font-bold uppercase text-gray-400 transition-all">🎮 Games</button>
-            <button onclick="switchView('yt')" id="btn-yt" class="sidebar-btn w-full p-3 flex items-center gap-4 text-[11px] font-bold uppercase text-gray-400 transition-all">📺 Media</button>
+            <button onclick="switchView('calc')" id="btn-calc" class="sidebar-btn active w-full p-4 flex items-center gap-4 text-[10px] font-black uppercase text-gray-400 transition-all">📐 Calculator</button>
+            <button onclick="switchView('ai')" id="btn-ai" class="sidebar-btn w-full p-4 flex items-center gap-4 text-[10px] font-black uppercase text-gray-400 transition-all">🧠 Worth AI</button>
+            <button onclick="switchView('vpn')" id="btn-vpn" class="sidebar-btn w-full p-4 flex items-center gap-4 text-[10px] font-black uppercase text-gray-400 transition-all">🛡️ VPN Shield</button>
+            <button onclick="switchView('proxy')" id="btn-proxy" class="sidebar-btn w-full p-4 flex items-center gap-4 text-[10px] font-black uppercase text-gray-400 transition-all">🌐 Shadow Bridge</button>
         </div>
         
-        <div class="pt-4 border-t border-white/5">
-            <button onclick="triggerAIVision()" class="w-full p-3 text-[10px] font-black text-purple-400 uppercase hover:bg-purple-500/10 rounded-xl transition-all">🧠 AI Vision</button>
-            <button onclick="toggleDecoy()" class="mt-2 w-full p-3 text-[9px] font-black uppercase text-red-500 glass rounded-xl">Panic Mode (`)</button>
+        <div class="pt-6 border-t border-white/5">
+            <button onclick="selfDestruct()" class="w-full p-3 text-[9px] font-black uppercase text-red-500 glass rounded-xl hover:bg-red-500/10 transition-all">Self-Destruct</button>
         </div>
     </nav>
 
-    <main class="flex-1 relative flex flex-col overflow-hidden bg-[#03070b]">
-        <div id="calc-view" class="flex-1 p-4"><iframe src="https://calcsolver.net/"></iframe></div>
+    <main class="flex-1 relative flex flex-col overflow-hidden">
+        
+        <div id="calc-view" class="flex-1 p-6">
+            <iframe src="https://calcsolver.net/" class="shadow-2xl"></iframe>
+        </div>
 
-        <div id="proxy-view" class="hidden flex-1 p-8 flex flex-col items-center justify-center">
-            <div class="max-w-2xl w-full text-center">
-                <h2 class="text-4xl font-black italic text-purple-500 uppercase mb-4 tracking-tighter">Shadow Bridge</h2>
-                <p class="text-[10px] text-gray-500 font-bold uppercase mb-10 tracking-widest leading-loose">
-                    Injected sites launch in a separate <span class="text-white underline font-black">Ghost Tab</span>.<br> 
-                    History stays clean. Filters stay bypassed.
-                </p>
-                
-                <div class="glass p-10 rounded-[3rem] border-white/5 shadow-2xl">
-                    <input type="text" id="proxy-url" placeholder="Enter URL (e.g. discord.com)" class="w-full bg-black/60 border border-white/10 p-5 rounded-2xl text-white focus:border-purple-500 outline-none transition-all font-mono text-center mb-8">
-                    
-                    <div class="grid grid-cols-1 gap-4">
-                        <button onclick="launchGhostTab('croxy')" class="p-5 bg-purple-600 rounded-2xl font-black text-xs uppercase hover:bg-purple-500 hover:scale-[1.02] active:scale-95 transition-all shadow-[0_0_30px_rgba(138,43,226,0.3)]">
-                            Launch via Engine 1 (Primary)
-                        </button>
-                        <button onclick="launchGhostTab('proxyium')" class="p-5 glass border-white/10 rounded-2xl font-black text-xs uppercase hover:bg-white/5 transition-all">
-                            Launch via Engine 2 (Secondary)
-                        </button>
-                    </div>
+        <div id="ai-view" class="hidden flex-1 p-6 flex flex-col">
+            <div id="ai-loader" class="flex-1 flex items-center justify-center bg-[#02040a] rounded-3xl z-10">
+                <div class="text-center">
+                    <h2 class="typing text-purple-500 font-mono text-sm uppercase tracking-widest">Worth AI: Initializing...</h2>
+                    <p class="text-[8px] text-gray-600 mt-2 font-mono uppercase">Decryption in progress</p>
+                </div>
+            </div>
+            <iframe id="ai-frame" src="https://duckduckgo.com/?q=DuckDuckGo+AI+Chat&ia=chat" class="hidden shadow-2xl"></iframe>
+        </div>
+
+        <div id="vpn-view" class="hidden flex-1 p-10 flex flex-col items-center justify-center">
+            <div class="max-w-md w-full glass p-10 rounded-[3rem] border-white/10 text-center">
+                <h2 class="text-xl font-black text-purple-500 uppercase mb-8 italic tracking-tighter">Titan VPN Protocol</h2>
+                <div class="grid grid-cols-2 gap-2 mb-6">
+                    <button onclick="setSrv('US-East')" class="srv-btn p-3 glass rounded-xl text-[9px] font-bold uppercase hover:bg-white/5">🇺🇸 US-East</button>
+                    <button onclick="setSrv('JP-Tokyo')" class="srv-btn p-3 glass rounded-xl text-[9px] font-bold uppercase hover:bg-white/5">🇯🇵 JP-Tokyo</button>
+                </div>
+                <button onclick="toggleVPN()" id="vpn-btn" class="w-full py-4 bg-white text-black rounded-xl font-black text-xs uppercase transition-all">Connect Tunnel</button>
+            </div>
+        </div>
+
+        <div id="proxy-view" class="hidden flex-1 p-10 flex flex-col items-center justify-center">
+            <div class="max-w-xl w-full text-center">
+                <h2 class="text-3xl font-black italic text-white uppercase mb-10 tracking-[0.4em]">Shadow Bridge</h2>
+                <div class="glass p-8 rounded-[2rem] space-y-4">
+                    <input type="text" id="proxy-url" placeholder="ENTER TARGET..." class="w-full bg-black/40 border border-white/10 p-4 rounded-xl text-white text-center font-mono outline-none focus:border-purple-500 transition-all">
+                    <button onclick="launchGhost()" class="w-full py-4 bg-purple-600 rounded-xl font-black text-xs uppercase shadow-lg shadow-purple-500/20">Execute Injection</button>
                 </div>
             </div>
         </div>
 
-        <div id="games-view" class="hidden flex-1 overflow-y-auto p-8"><div id="game-grid" class="grid grid-cols-2 md:grid-cols-5 gap-6"></div></div>
-        <div id="yt-view" class="hidden flex-1 p-6"><iframe src="https://www.youtube.com/embed?listType=search&list=math+tutorials"></iframe></div>
     </main>
 
     <script>
+        let isVPN = false;
+        let srv = "None";
+
         function switchView(v) {
-            ['calc-view', 'proxy-view', 'games-view', 'yt-view'].forEach(id => document.getElementById(id).classList.add('hidden'));
+            ['calc-view', 'ai-view', 'vpn-view', 'proxy-view'].forEach(id => document.getElementById(id).classList.add('hidden'));
             document.querySelectorAll('.sidebar-btn').forEach(b => b.classList.remove('active'));
             document.getElementById('btn-'+v).classList.add('active');
             document.getElementById(v + '-view').classList.remove('hidden');
+
+            if (v === 'ai') {
+                setTimeout(() => {
+                    document.getElementById('ai-loader').style.display = 'none';
+                    document.getElementById('ai-frame').classList.remove('hidden');
+                }, 2000);
+            }
         }
 
-        // THE GHOST-TAB INJECTION LOGIC
-        function launchGhostTab(engine) {
+        function setSrv(name) {
+            srv = name;
+            document.querySelectorAll('.srv-btn').forEach(b => b.style.borderColor = "transparent");
+            event.target.style.borderColor = "#8a2be2";
+        }
+
+        function toggleVPN() {
+            const btn = document.getElementById('vpn-btn');
+            if (!isVPN) {
+                isVPN = true;
+                btn.innerText = "Tunnel Active";
+                btn.classList.add('bg-green-600', 'text-white');
+            } else { location.reload(); }
+        }
+
+        function launchGhost() {
             let url = document.getElementById('proxy-url').value;
-            if (!url) { alert("Input Required."); return; }
-            if (!url.startsWith('http')) url = 'https://' + url;
-
-            let proxyBase = (engine === 'croxy') 
-                ? "https://www.croxyproxy.com/_p.php?u=" 
-                : "https://proxyium.com/search?url=";
-
-            const finalUrl = proxyBase + encodeURIComponent(url);
-            
-            // 1. Open a blank tab
+            if(!url) return;
+            if(!url.startsWith('http')) url = 'https://' + url;
             const win = window.open('about:blank', '_blank');
-            
-            // 2. Cloak the tab
             win.document.title = 'Calculator'; 
-            
-            // 3. Inject a full-screen frame into the new tab
-            // This prevents the original G-HUB from lagging or being seen
             const f = win.document.createElement('iframe');
-            f.style.position = "fixed";
-            f.style.top = "0";
-            f.style.left = "0";
-            f.style.width = "100%";
-            f.style.height = "100%";
-            f.style.border = "none";
-            f.src = finalUrl;
-            
+            f.style = "position:fixed;top:0;left:0;width:100%;height:100%;border:none;background:white;";
+            f.src = "https://www.croxyproxy.com/_p.php?u=" + encodeURIComponent(url);
             win.document.body.appendChild(f);
         }
 
-        // (Previous Game/AI Logic stays the same)
-        async function loadGames() {
-            const grid = document.getElementById('game-grid');
-            try {
-                const res = await fetch('https://raw.githubusercontent.com/selenite-cc/selenite-old/main/games.json');
-                const data = await res.json();
-                Object.keys(data).slice(0, 20).forEach(key => {
-                    const game = data[key];
-                    const card = document.createElement('div');
-                    card.className = "glass p-3 rounded-3xl cursor-pointer text-center hover:scale-105 transition-all";
-                    card.onclick = () => launchGhostTabDirect(`https://cdn.jsdelivr.net/gh/selenite-cc/selenite-old@main/${key}/index.html`);
-                    card.innerHTML = `<img src="https://cdn.jsdelivr.net/gh/selenite-cc/selenite-old@main/${key}/${game.img || 'cover.svg'}" class="w-full aspect-square object-cover rounded-2xl mb-2"><div class="text-[9px] font-black text-gray-500 uppercase truncate">${game.name || key}</div>`;
-                    grid.appendChild(card);
-                });
-            } catch(e) {}
+        function selfDestruct() {
+            if(confirm("Confirm?")) { window.location.href = "https://google.com"; }
         }
 
-        function launchGhostTabDirect(url) {
-            const win = window.open('about:blank', '_blank');
-            win.document.title = 'Calculator';
-            const f = win.document.createElement('iframe');
-            f.style = "position:fixed;top:0;left:0;width:100%;height:100%;border:none;";
-            f.src = url;
-            win.document.body.appendChild(f);
-        }
-
-        async function triggerAIVision() {
-            try {
-                const stream = await navigator.mediaDevices.getDisplayMedia({ video: { displaySurface: "browser" } });
-                stream.getTracks().forEach(t => t.stop());
-                window.open('https://duckduckgo.com/?q=DuckDuckGo+AI+Chat&ia=chat', 'CalcAI', 'width=450,height=700');
-            } catch (e) {}
-        }
-
-        function toggleDecoy() {
-            const d = document.getElementById('decoy-overlay');
-            d.style.display = (d.style.display === 'block') ? 'none' : 'block';
-        }
-
-        window.addEventListener('keydown', (e) => { if (e.key === '`') toggleDecoy(); });
-        loadGames();
+        window.addEventListener('keydown', (e) => { 
+            if (e.key === '`') {
+                const d = document.getElementById('decoy-overlay');
+                d.style.display = (d.style.display === 'block') ? 'none' : 'block';
+            }
+        });
     </script>
 </body>
 </html>
