@@ -2,127 +2,102 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>CalcSolver Pro</title>
+    <title>Calculator</title>
+    <script type="module" src="./cloaking.js"></script>
+    <script type="module" src="./ai.js"></script>
+    
     <style>
-        body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; background: #fff; font-family: sans-serif; }
-
-        /* THE INVISIBLE CORNER TRIGGER */
-        #corner-trigger {
-            position: fixed; top: 0; left: 0; width: 40px; height: 40px;
-            z-index: 10000; cursor: pointer; background: transparent;
+        :root {
+            --bg: #0b0e14;
+            --panel: #161b22;
+            --accent: #58a6ff;
+            --text: #c9d1d9;
+            --border: #30363d;
         }
 
-        /* SIDEBAR PANEL */
+        body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; background: #fff; font-family: sans-serif; }
+        
+        /* Secret Trigger (Top Left Corner) */
+        #secret-trigger {
+            position: fixed; top: 0; left: 0; width: 30px; height: 30px;
+            z-index: 10000; cursor: default; background: transparent;
+        }
+
+        /* Sidebar - Orbit AI Control Center */
         #sidebar {
             position: fixed; left: -400px; top: 0; width: 380px; height: 100vh;
-            background: #1c2128; border-right: 3px solid #38bdf8;
-            transition: 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.1);
-            z-index: 9999; display: flex; flex-direction: column;
-            box-shadow: 20px 0 50px rgba(0,0,0,0.6); color: white;
+            background: var(--panel); border-right: 3px solid var(--accent);
+            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 9999;
+            display: flex; flex-direction: column; color: var(--text);
+            box-shadow: 10px 0 30px rgba(0,0,0,0.5);
         }
         #sidebar.active { left: 0; }
 
-        /* MAIN VIEWPORT CONTAINERS */
-        #main-container { width: 100vw; height: 100vh; position: relative; }
-        .full-frame { width: 100%; height: 100%; border: none; position: absolute; top: 0; left: 0; }
-        
-        /* Hiding the "non-active" frame */
-        .hidden { display: none !important; }
+        /* Main Workspace (The Cover) */
+        #main-view { width: 100vw; height: 100vh; }
+        iframe { width: 100%; height: 100%; border: none; background: #fff; }
 
-        /* SIDEBAR UI ELEMENTS */
-        .header { padding: 20px; background: #0d1117; text-align: center; border-bottom: 1px solid #30363d; }
-        .game-grid { flex: 1; overflow-y: auto; padding: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        /* Orbit Chat Interface Integration */
+        #chat-container { flex: 1; display: flex; flex-direction: column; padding: 15px; overflow: hidden; }
+        #chat { flex: 1; overflow-y: auto; margin-bottom: 10px; border-radius: 8px; background: rgba(0,0,0,0.2); padding: 10px; border: 1px solid var(--border); }
+        .input-area { display: flex; gap: 5px; }
+        input { flex: 1; padding: 10px; border-radius: 5px; border: 1px solid var(--border); background: #0d1117; color: white; outline: none; }
+        input:focus { border-color: var(--accent); }
         
-        button { 
-            background: #2d333b; border: 1px solid #444c56; color: #adbac7; 
-            padding: 10px; border-radius: 6px; cursor: pointer; transition: 0.2s;
-        }
-        button:hover { background: #38bdf8; color: #000; font-weight: bold; }
-
-        .swap-btn { background: #38bdf8; color: #1c2128; margin: 15px; font-weight: bold; padding: 15px; }
+        .tool-section { margin-top: 15px; padding-top: 15px; border-top: 1px solid var(--border); }
+        select { width: 100%; padding: 8px; background: #0d1117; color: white; border: 1px solid var(--border); border-radius: 4px; }
         
-        /* MINI PREVIEW BOX */
-        .mini-preview { height: 200px; border-top: 1px solid #444c56; background: #000; position: relative; }
-        .mini-label { position: absolute; top: 5px; right: 5px; font-size: 10px; background: rgba(0,0,0,0.5); padding: 2px 5px; }
+        button#sendBtn { background: var(--accent); border: none; border-radius: 5px; padding: 0 15px; cursor: pointer; color: #000; font-weight: bold; }
+        .close-btn { background: #f85149; color: white; border: none; padding: 10px; cursor: pointer; border-radius: 5px; margin-top: 10px; width: 100%; }
     </style>
 </head>
 <body>
 
-    <div id="corner-trigger" onclick="toggleSidebar()"></div>
+    <div id="secret-trigger" onclick="toggleSidebar()"></div>
 
     <div id="sidebar">
-        <div class="header">
-            <div style="font-size: 12px; color: #38bdf8; letter-spacing: 2px;">WORKSTATION ALPHA</div>
-        </div>
-
-        <button class="swap-btn" onclick="swapViews()">🔄 SWAP WORK/PLAY</button>
-
-        <div class="game-grid" id="game-list">
-            </div>
-
-        <div class="mini-preview">
-            <span class="mini-label">PREVIEW</span>
-            <div id="mini-content" style="width:100%; height:100%; overflow:hidden;">
+        <div style="padding: 20px; text-align: center; background: #0d1117; border-bottom: 1px solid var(--border);">
+            <h2 style="color: var(--accent); margin: 0; font-size: 1.2rem;">ORBIT CO-PILOT</h2>
+            <div id="usageIndicator" style="font-size: 0.7rem; margin-top: 5px; color: #8b949e;">
                 </div>
         </div>
-        
-        <button onclick="toggleSidebar()" style="margin: 10px; background: #444c56;">Close Menu</button>
+
+        <div id="chat-container">
+            <div id="chat"></div>
+            
+            <div class="input-area">
+                <input type="text" id="textInput" placeholder="Message Orbit...">
+                <button id="sendBtn">🚀</button>
+            </div>
+            
+            <div class="tool-section">
+                <label style="font-size: 0.75rem; color: #8b949e; display: block; margin-bottom: 5px;">ACTIVE CLOAK</label>
+                <select id="cloak-select" data-cloak-select>
+                    <option value="gdoc">Google Docs</option>
+                    <option value="google">Google Search</option>
+                    <option value="desmoscalc">Desmos</option>
+                    <option value="blank">Blank Tab</option>
+                </select>
+            </div>
+
+            <button class="close-btn" onclick="toggleSidebar()">Hide Interface</button>
+        </div>
     </div>
 
-    <div id="main-container">
-        <iframe id="calc-frame" class="full-frame" src="https://calcsolver.net/"></iframe>
-        <iframe id="game-frame" class="full-frame hidden" src="https://starship-site.github.io/projects/slope/"></iframe>
+    <div id="main-view">
+        <iframe src="https://calcsolver.net/"></iframe>
     </div>
 
     <script>
         const sidebar = document.getElementById('sidebar');
-        const calcFrame = document.getElementById('calc-frame');
-        const gameFrame = document.getElementById('game-frame');
-        const miniContent = document.getElementById('mini-content');
-        
-        let isGaming = false;
 
-        // 1. Toggle the Sidebar
         function toggleSidebar() {
             sidebar.classList.toggle('active');
         }
 
-        // 2. Swap Main View between Calc and Game
-        function swapViews() {
-            isGaming = !isGaming;
-            if (isGaming) {
-                gameFrame.classList.remove('hidden');
-                calcFrame.classList.add('hidden');
-            } else {
-                calcFrame.classList.remove('hidden');
-                gameFrame.classList.add('hidden');
-            }
-            toggleSidebar();
-        }
-
-        // 3. Load Game
-        function play(slug) {
-            gameFrame.src = "https://starship-site.github.io/projects/" + slug + "/";
-            if (!isGaming) swapViews();
-            else toggleSidebar();
-        }
-
-        // 4. Generate Game Buttons
-        const games = ['slope', 'retro-bowl', '1v1lol', 'tunnel-rush', 'geometry-dash', 'bitlife', 'eggy-car', 'minecraft', 'drive-mad', 'cookie-clicker'];
-        const grid = document.getElementById('game-list');
-        games.forEach(g => {
-            let btn = document.createElement('button');
-            btn.innerText = g.replace(/-/g, ' ').toUpperCase();
-            btn.onclick = () => play(g);
-            grid.appendChild(btn);
-        });
-
-        // 5. PANIC KEY: Pressing "~" (tilde) hides game immediately
+        // Global Panic/Hide listener
         document.addEventListener('keydown', (e) => {
-            if (e.key === "`" || e.key === "~") {
-                isGaming = false;
-                calcFrame.classList.remove('hidden');
-                gameFrame.classList.add('hidden');
+            if (e.key === 'Escape') {
                 sidebar.classList.remove('active');
             }
         });
