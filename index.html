@@ -12,9 +12,6 @@
         .glass { background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.05); }
         .vpn-active { color: var(--accent) !important; border-color: var(--accent) !important; box-shadow: 0 0 20px rgba(0, 255, 136, 0.2); }
         #ghost-sheet { position: fixed; inset: 0; z-index: 9999; background: url('https://i.imgur.com/3N4z7fR.png'); opacity: 0.15; pointer-events: none; display: none; }
-        input::placeholder { color: #334155; }
-        .status-pulse { animation: pulse 2s infinite; }
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
     </style>
 </head>
 <body class="flex" oncontextmenu="return false;">
@@ -24,165 +21,119 @@
     <nav class="w-64 bg-black border-r border-white/5 flex flex-col p-6 z-50">
         <div class="mb-8">
             <h1 class="font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-green-400 uppercase italic text-2xl tracking-tighter">Titan Omnis</h1>
-            <p id="ping" class="text-[7px] text-gray-500 font-bold uppercase tracking-[0.3em] mt-1">Ping: -- ms</p>
+            <div class="flex items-center gap-2 mt-2">
+                <div id="status-light" class="w-2 h-2 rounded-full bg-gray-500"></div>
+                <p id="ping" class="text-[7px] text-gray-500 font-bold uppercase tracking-[0.3em]">Checking Node...</p>
+            </div>
         </div>
         
         <div class="space-y-2 flex-1 overflow-y-auto">
-            <label class="text-[8px] font-black text-gray-600 uppercase mb-2 block">Browsing Mode</label>
             <button onclick="setMode('uv')" id="btn-uv" class="vpn-active w-full p-3 glass rounded-xl text-[10px] font-bold uppercase text-left border-l-2 border-green-500">🛰️ UV Tunnel</button>
-            <button onclick="setMode('wayback')" id="btn-wayback" class="w-full p-3 glass rounded-xl text-[10px] font-bold uppercase text-left border-l-2 border-yellow-500">⏳ Wayback</button>
-            
-            <label class="text-[8px] font-black text-gray-600 uppercase mt-6 mb-2 block">Utilities</label>
             <button onclick="toggleChat()" class="w-full p-3 glass rounded-xl text-[10px] font-bold uppercase text-left border-l-2 border-purple-500">💬 Comms Link</button>
-            
-            <textarea id="stealth-notes" class="w-full h-32 bg-black/40 border border-white/10 rounded-xl p-3 text-[10px] text-gray-400 outline-none mt-4 font-mono" placeholder="PRIVATE_STORAGE..."></textarea>
+            <textarea id="stealth-notes" class="w-full h-40 bg-black/40 border border-white/10 rounded-xl p-3 text-[10px] text-gray-400 outline-none mt-4 font-mono" placeholder="PRIVATE_STORAGE..."></textarea>
         </div>
 
-        <div class="mt-4 p-4 glass rounded-2xl">
-            <div class="flex items-center justify-between mb-1">
-                <span class="text-[8px] font-bold text-gray-500 uppercase">Uplink</span>
-                <div class="w-2 h-2 rounded-full bg-green-500 status-pulse"></div>
-            </div>
-            <div class="text-[9px] font-mono text-blue-400">BLOB_CLOAK_ACTIVE</div>
+        <div class="mt-4 p-4 glass rounded-2xl text-[9px] text-gray-500">
+            [Shift + Esc] Atomic Panic<br>[ ` ] Toggle Ghost Sheet
         </div>
     </nav>
 
     <main class="flex-1 flex flex-col relative">
-        <div class="bg-black/40 p-4 flex items-center gap-4 border-b border-white/5 backdrop-blur-md">
-            <div class="flex-1 bg-black/80 border border-white/10 rounded-2xl px-5 py-3 flex items-center gap-4 shadow-inner">
-                <span id="mode-tag" class="text-[9px] font-black uppercase text-blue-500 tracking-widest">UV</span>
-                <input type="text" id="target-url" class="bg-transparent text-[12px] text-white outline-none w-full font-mono" placeholder="ENTER_URL_OR_ALIAS (e.g. /yt)..." onkeypress="if(event.key==='Enter') launch()">
+        <div class="bg-black/40 p-4 flex items-center gap-4 border-b border-white/5">
+            <div class="flex-1 bg-black/80 border border-white/10 rounded-2xl px-5 py-3 flex items-center gap-4">
+                <span id="mode-tag" class="text-[9px] font-black uppercase text-blue-500">UV</span>
+                <input type="text" id="target-url" class="bg-transparent text-[12px] text-white outline-none w-full font-mono" placeholder="URL_OR_ALIAS (/yt, /dc)..." onkeypress="if(event.key==='Enter') launch()">
             </div>
-            <button onclick="goHome()" class="p-3 glass rounded-2xl hover:bg-white/5">🏠</button>
         </div>
 
-        <div class="flex-1 relative p-4">
-            <div id="dashboard" class="absolute inset-0 z-10 p-10 bg-[#020408] overflow-y-auto">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div onclick="launchQuick('login.i-ready.com')" class="glass p-8 rounded-[40px] cursor-pointer hover:bg-blue-500/10 border-b-4 border-blue-600/20 text-center">
-                        <h3 class="font-black text-xs uppercase text-gray-200 tracking-widest">i-Ready</h3>
-                    </div>
-                    <div onclick="launchQuick('youtube.com')" class="glass p-8 rounded-[40px] cursor-pointer hover:bg-red-500/10 border-b-4 border-red-600/20 text-center">
-                        <h3 class="font-black text-xs uppercase text-gray-200 tracking-widest">YouTube</h3>
-                    </div>
-                    <div onclick="launchDriveFile()" class="glass p-8 rounded-[40px] cursor-pointer hover:bg-yellow-500/10 border-b-4 border-yellow-600/20 text-center">
-                        <h3 class="font-black text-xs uppercase text-gray-200 tracking-widest">Drive Link</h3>
-                    </div>
-                </div>
+        <div class="flex-1 relative p-10 bg-[#020408] grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div onclick="forceBlankTab('youtube.com')" class="glass p-8 rounded-[40px] cursor-pointer hover:border-red-500 transition-all border-b-4 border-red-600/20 text-center">
+                <h3 class="font-black text-xs uppercase text-gray-200">YouTube</h3>
             </div>
+            <div onclick="forceBlankTab('login.i-ready.com')" class="glass p-8 rounded-[40px] cursor-pointer hover:border-blue-500 transition-all border-b-4 border-blue-600/20 text-center">
+                <h3 class="font-black text-xs uppercase text-gray-200">i-Ready</h3>
+            </div>
+            <div onclick="forceBlankTab('discord.com')" class="glass p-8 rounded-[40px] cursor-pointer hover:bg-indigo-500/10 border-b-4 border-indigo-600/20 text-center">
+                <h3 class="font-black text-xs uppercase text-gray-200">Discord</h3>
+            </div>
+        </div>
 
-            <div id="chat-panel" class="absolute top-4 right-4 bottom-4 w-80 glass rounded-3xl z-50 translate-x-[400px] transition-transform duration-500 flex flex-col overflow-hidden border border-purple-500/20">
-                <div class="p-4 bg-purple-600/10 border-b border-purple-500/20 font-black text-[10px] uppercase text-purple-400">Secure Comms</div>
-                <div id="chat-display" class="flex-1 overflow-y-auto p-4 font-mono text-[10px]"></div>
-                <div class="p-4"><input type="text" id="chat-input" class="w-full bg-black/50 border border-white/10 rounded-lg p-2 text-[10px] outline-none" placeholder="Transmit..."></div>
-            </div>
+        <div id="chat-panel" class="absolute top-4 right-4 bottom-4 w-80 glass rounded-3xl z-50 translate-x-[400px] transition-transform duration-500 flex flex-col overflow-hidden">
+            <div class="p-4 bg-purple-600/10 border-b border-purple-500/20 font-black text-[10px] text-purple-400">Secure Comms</div>
+            <div id="chat-display" class="flex-1 overflow-y-auto p-4 font-mono text-[10px]"></div>
+            <div class="p-4"><input type="text" id="chat-input" class="w-full bg-black/50 border border-white/10 rounded-lg p-2 text-[10px] outline-none" placeholder="Message..."></div>
         </div>
     </main>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyC_dYbJKb9EjfENjdmrhE0UvHPPBt5cWkY",
-            authDomain: "moonlight-a12a1.firebaseapp.com",
-            databaseURL: "https://moonlight-a12a1-default-rtdb.firebaseio.com",
-            projectId: "moonlight-a12a1",
-            storageBucket: "moonlight-a12a1.firebasestorage.app",
-            messagingSenderId: "508476856908",
-            appId: "1:508476856908:web:59598f0583994deb54b2e9"
-        };
-
+        const firebaseConfig = { apiKey: "AIzaSyC_dYbJKb9EjfENjdmrhE0UvHPPBt5cWkY", authDomain: "moonlight-a12a1.firebaseapp.com", databaseURL: "https://moonlight-a12a1-default-rtdb.firebaseio.com", projectId: "moonlight-a12a1", storageBucket: "moonlight-a12a1.firebasestorage.app", messagingSenderId: "508476856908", appId: "1:508476856908:web:59598f0583994deb54b2e9" };
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
-
-        window.sendMessage = (text) => {
-            if(!text) return;
-            push(ref(db, 'chat'), { msg: text, user: "Node_" + Math.floor(Math.random()*999), time: Date.now() });
-        };
-
+        window.sendMessage = (text) => { if(text) push(ref(db, 'chat'), { msg: text, user: "Node_" + Math.floor(Math.random()*99), time: Date.now() }); };
         onChildAdded(ref(db, 'chat'), (data) => {
-            const display = document.getElementById('chat-display');
-            display.innerHTML += `<div class="mb-2"><span class="text-blue-400 font-bold">${data.val().user}:</span> ${data.val().msg}</div>`;
-            display.scrollTop = display.scrollHeight;
+            const d = document.getElementById('chat-display');
+            d.innerHTML += `<div class="mb-1"><span class="text-blue-400 font-bold">${data.val().user}:</span> ${data.val().msg}</div>`;
+            d.scrollTop = d.scrollHeight;
         });
-
-        document.getElementById('chat-input').addEventListener('keypress', (e) => {
-            if(e.key === 'Enter') { sendMessage(e.target.value); e.target.value = ''; }
-        });
+        document.getElementById('chat-input').addEventListener('keypress', (e) => { if(e.key === 'Enter') { sendMessage(e.target.value); e.target.value = ''; }});
     </script>
 
     <script>
         let mode = 'uv';
-        const engines = { uv: "https://taco.tacosforlife.biz/service/", wayback: "https://web.archive.org/web/2026/" };
-        const aliases = { "/yt": "youtube.com", "/dc": "discord.com", "/tw": "twitter.com", "/gm": "gmail.com" };
+        // ADD NEW MIRRORS HERE IF ONE DIES
+        const engines = { 
+            uv: "https://v.st-re.am/service/", 
+            wayback: "https://web.archive.org/web/2026/" 
+        };
+        const aliases = { "/yt": "youtube.com", "/dc": "discord.com" };
 
-        // 1. BLOB CLOAKING
-        (function() {
-            if (window.location.protocol !== 'blob:') {
-                const blob = new Blob([document.documentElement.outerHTML], { type: 'text/html' });
-                window.location.replace(URL.createObjectURL(blob));
-            }
-        })();
+        (function() { if (window.location.protocol !== 'blob:') { const b = new Blob([document.documentElement.outerHTML], { type: 'text/html' }); window.location.replace(URL.createObjectURL(b)); } })();
 
-        // 2. TAB CAMOUFLAGE
         document.addEventListener('visibilitychange', () => {
-            const isHidden = document.hidden;
-            document.title = isHidden ? "My Drive - Google Drive" : "Google Docs - Research";
-            document.getElementById('favicon').href = isHidden ? "https://ssl.gstatic.com/images/branding/product/1x/drive_2020q4_32dp.png" : "https://ssl.gstatic.com/docs/documents/images/kix-favicon7.ico";
+            document.title = document.hidden ? "My Drive - Google Drive" : "Google Docs - Research";
+            document.getElementById('favicon').href = document.hidden ? "https://ssl.gstatic.com/images/branding/product/1x/drive_2020q4_32dp.png" : "https://ssl.gstatic.com/docs/documents/images/kix-favicon7.ico";
         });
 
-        // 3. BLANK-FORCE SPAWNER
         window.forceBlankTab = (target) => {
             if (!target) return;
             let url = target.trim();
             if (aliases[url]) url = aliases[url];
             if (!url.startsWith('http')) url = 'https://' + url;
+            const final = mode === 'uv' ? engines.uv + btoa(url) : engines.wayback + url;
 
-            const finalTarget = mode === 'uv' ? engines.uv + btoa(url) : engines.wayback + url;
-            const win = window.open('about:blank', '_blank');
-            
-            if (win) {
-                win.document.write(`
-                    <html><head><title>Google Docs</title><style>body,html{margin:0;padding:0;height:100vh;overflow:hidden;background:#000;}iframe{width:100%;height:100%;border:none;}</style></head>
-                    <body><iframe src="${finalTarget}"></iframe></body></html>
-                `);
-                win.document.close();
-            }
+            const pageContent = `<html><head><title>Google Docs</title><link rel="icon" href="https://ssl.gstatic.com/docs/documents/images/kix-favicon7.ico"><style>body,html{margin:0;padding:0;height:100vh;overflow:hidden;background:#000;}iframe{width:100%;height:100%;border:none;}</style></head><body><iframe src="${final}"></iframe></body></html>`;
+            const blob = new Blob([pageContent], { type: 'text/html' });
+            const blobUrl = URL.createObjectURL(blob);
+            const win = window.open(blobUrl, '_blank');
+            if (!win) alert("Pop-up Blocked! Click the 'window' icon in your address bar and 'Allow' Titan to spawn tabs.");
         };
 
-        window.launch = () => {
-            const input = document.getElementById('target-url');
-            window.forceBlankTab(input.value);
-            input.value = '';
-            input.placeholder = "Dispatching Ghost Tab...";
-        };
-
-        window.launchQuick = (url) => window.forceBlankTab(url);
+        window.launch = () => { const i = document.getElementById('target-url'); window.forceBlankTab(i.value); i.value = ''; };
         window.setMode = (m) => { mode = m; document.getElementById('mode-tag').innerText = m.toUpperCase(); };
         window.toggleChat = () => document.getElementById('chat-panel').classList.toggle('translate-x-[400px]');
-        window.goHome = () => document.getElementById('dashboard').classList.remove('hidden');
-
-        // 4. PANIC & GHOST SHEET
+        
         window.addEventListener('keydown', (e) => {
             if(e.shiftKey && e.key === 'Escape') window.location.replace("https://en.wikipedia.org/wiki/Special:Random");
-            if(e.key === '`') {
-                const g = document.getElementById('ghost-sheet');
-                g.style.display = g.style.display === 'block' ? 'none' : 'block';
-            }
+            if(e.key === '`') { const g = document.getElementById('ghost-sheet'); g.style.display = g.style.display === 'block' ? 'none' : 'block'; }
         });
 
-        // 5. PING & PERSISTENCE
         setInterval(() => {
             const start = Date.now();
             fetch(engines.uv, { mode: 'no-cors' }).then(() => {
-                document.getElementById('ping').innerText = `Ping: ${Date.now() - start} ms`;
+                const p = Date.now() - start;
+                document.getElementById('ping').innerText = `Ping: ${p} ms`;
+                document.getElementById('status-light').className = `w-2 h-2 rounded-full ${p < 300 ? 'bg-green-500' : 'bg-yellow-500'}`;
+            }).catch(() => {
+                document.getElementById('status-light').className = 'w-2 h-2 rounded-full bg-red-500';
+                document.getElementById('ping').innerText = `Node Offline`;
             });
         }, 5000);
 
-        const notes = document.getElementById('stealth-notes');
-        notes.addEventListener('input', (e) => localStorage.setItem('titan_notes', e.target.value));
-        window.onload = () => notes.value = localStorage.getItem('titan_notes') || '';
+        const n = document.getElementById('stealth-notes');
+        n.addEventListener('input', (e) => localStorage.setItem('titan_notes', e.target.value));
+        window.onload = () => n.value = localStorage.getItem('titan_notes') || '';
     </script>
 </body>
 </html>
