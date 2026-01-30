@@ -2,170 +2,156 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Google Docs - Research</title>
-    <link id="favicon" rel="icon" href="https://ssl.gstatic.com/docs/documents/images/kix-favicon7.ico">
+    <link id="dynamic-favicon" rel="icon" href="https://ssl.gstatic.com/docs/documents/images/kix-favicon7.ico">
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;800&family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
     <style>
-        :root { --accent: #00ff88; --bg: #050505; }
-        body { background: var(--bg); color: #e0e0e0; font-family: 'JetBrains Mono', monospace; height: 100vh; overflow: hidden; }
-        .glass { background: rgba(255,255,255,0.02); backdrop-filter: blur(25px); border: 1px solid rgba(255,255,255,0.05); }
-        .neon-border { border-color: var(--accent); box-shadow: 0 0 15px rgba(0, 255, 136, 0.2); }
-        #ghost-sheet { position: fixed; inset: 0; z-index: 9999; background: url('https://i.imgur.com/3N4z7fR.png'); opacity: 0.1; pointer-events: none; display: none; }
-        .scanline { position: fixed; top: 0; left: 0; width: 100%; height: 2px; background: rgba(0, 255, 136, 0.1); animation: scan 4s linear infinite; z-index: 100; pointer-events: none; }
-        @keyframes scan { from { top: 0; } to { top: 100%; } }
-        iframe { width: 100%; height: 100%; border: none; }
+        :root { --accent: #8b5cf6; --bg: #050505; --glass: rgba(255,255,255,0.03); --border: rgba(255,255,255,0.08); }
+        body { background-color: var(--bg); color: #e2e2e2; font-family: 'Inter', sans-serif; overflow: hidden; height: 100vh; }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 10px; }
+        .glass { background: var(--glass); backdrop-filter: blur(16px); border: 1px solid var(--border); transition: all 0.2s ease; }
+        .glass:hover { border-color: var(--accent); transform: translateY(-2px); }
+        .active-tab { border-left: 3px solid var(--accent); background: linear-gradient(90deg, rgba(139, 92, 246, 0.1) 0%, transparent 100%); }
+        #ghost-overlay { position: fixed; inset: 0; background-image: url('https://i.imgur.com/3N4z7fR.png'); opacity: 0.1; pointer-events: none; z-index: 9998; display: none; background-size: cover; }
+        #ai-side-panel { transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); transform: translateX(100%); }
+        #ai-side-panel.open { transform: translateX(0); }
     </style>
 </head>
-<body class="flex" oncontextmenu="return false;">
+<body class="flex">
 
-    <div id="ghost-sheet"></div>
-    <div class="scanline"></div>
+    <div id="ghost-overlay"></div>
 
-    <nav class="w-72 bg-black/90 border-r border-white/5 flex flex-col p-5 z-50">
-        <div class="mb-6">
-            <h1 class="text-xl font-black italic tracking-tighter text-white">TITAN<span class="text-green-400">SINGULARITY</span></h1>
-            <div class="flex gap-2 mt-2">
-                <div class="h-1 flex-1 bg-green-500/20 rounded-full overflow-hidden"><div id="cpu-bar" class="h-full bg-green-500" style="width: 40%"></div></div>
-                <div class="h-1 flex-1 bg-blue-500/20 rounded-full overflow-hidden"><div id="ram-bar" class="h-full bg-blue-500" style="width: 65%"></div></div>
-            </div>
+    <aside class="w-72 bg-[#0a0a0c] border-r border-white/5 flex flex-col z-50">
+        <div class="p-6">
+            <h1 class="text-2xl font-black italic tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">TITAN<span class="text-white">OS</span></h1>
+            <p class="text-[9px] font-mono text-gray-500 mt-1 uppercase">Moltbot.v2_Active</p>
         </div>
 
-        <div class="flex-1 overflow-y-auto space-y-3 pr-2 custom-scroll">
-            <button onclick="switchView('dash')" class="w-full p-3 glass rounded-xl text-[10px] font-bold text-left hover:neon-border transition-all">🏠 CENTRAL HUB</button>
-            <button onclick="switchView('cinema')" class="w-full p-3 glass rounded-xl text-[10px] font-bold text-left hover:neon-border">🎬 CINEMA MODE</button>
-            <button onclick="toggleDev()" class="w-full p-3 glass rounded-xl text-[10px] font-bold text-left hover:neon-border">📟 AI TERMINAL</button>
+        <nav class="flex-1 px-4 space-y-2 overflow-y-auto">
+            <button onclick="setTab('home')" id="btn-home" class="w-full text-left p-3 rounded-xl text-xs font-bold text-gray-300 active-tab">🚀 Dashboard</button>
+            <button onclick="setTab('games')" id="btn-games" class="w-full text-left p-3 rounded-xl text-xs font-bold text-gray-300">🎮 Game Vault</button>
+            <button onclick="setTab('cinema')" id="btn-cinema" class="w-full text-left p-3 rounded-xl text-xs font-bold text-gray-300">🎬 Cinema Mode</button>
+            <button onclick="toggleAI()" class="w-full text-left p-3 rounded-xl text-xs font-bold text-cyan-400 hover:bg-cyan-500/10">🤖 Moltbot AI</button>
             
-            <div class="pt-4 border-t border-white/5">
-                <p class="text-[8px] text-gray-500 uppercase font-black mb-2">Security Tools</p>
-                <select id="cloak-select" onchange="changeCloak()" class="w-full bg-black border border-white/10 text-[9px] p-2 rounded-lg outline-none">
-                    <option value="docs">Cloak: Google Docs</option>
-                    <option value="drive">Cloak: My Drive</option>
-                    <option value="canvas">Cloak: Canvas LMS</option>
-                </select>
-                <button onclick="toggleBioBreak()" class="w-full mt-2 p-2 glass text-[9px] rounded-lg">🛡️ BIO-BREAK LOCK</button>
+            <div class="pt-6">
+                <button onclick="toggleBio()" class="w-full text-left p-3 rounded-xl text-xs font-bold text-yellow-500">🛡️ Bio-Lock</button>
+                <button onclick="toggleSettings()" class="w-full text-left p-3 rounded-xl text-xs font-bold text-blue-400">⚙️ Settings</button>
             </div>
+        </nav>
 
-            <textarea id="crypt-notes" class="w-full h-32 bg-black/50 border border-white/5 rounded-xl p-3 text-[10px] mt-4 font-mono outline-none focus:border-green-500" placeholder="// ENCRYPTED_NOTES_STORAGE"></textarea>
+        <div class="p-4 bg-black/40 border-t border-white/5">
+            <div id="status-display" class="text-[9px] font-mono text-green-500 mb-2">NETWORK: ENCRYPTED</div>
+            <textarea id="notes-area" class="w-full h-24 bg-black border border-white/10 rounded-lg p-2 text-[10px] font-mono text-gray-500 outline-none focus:border-purple-500" placeholder="Session Notes..."></textarea>
         </div>
-
-        <div class="mt-4 p-4 glass rounded-2xl text-[8px] text-gray-500">
-            PING: <span id="ping-val">24ms</span> | NODE: US-WEST<br>
-            [Shift+Esc] PANIC | [ ` ] GHOST
-        </div>
-    </nav>
+    </aside>
 
     <main class="flex-1 flex flex-col relative">
-        <header class="p-4 glass border-b border-white/5 flex gap-4 items-center">
-            <div class="flex-1 bg-black/50 border border-white/10 rounded-xl px-4 py-2 flex items-center gap-3">
-                <span class="text-[9px] text-green-500 font-black">UPLINK:</span>
-                <input type="text" id="main-input" class="bg-transparent w-full outline-none text-xs font-mono" placeholder="URL, GAME, OR /CMD..." onkeypress="if(event.key==='Enter') executeCommand()">
-            </div>
-            <button onclick="selfDestruct()" class="p-2 bg-red-500/10 hover:bg-red-500/40 text-red-500 rounded-xl transition-all">☢️</button>
+        <header class="h-16 border-b border-white/5 flex items-center px-6 gap-4 bg-black/20 backdrop-blur-md">
+            <input id="omnibox" type="text" class="flex-1 bg-white/5 border border-white/10 rounded-xl py-2 px-4 text-xs font-mono" placeholder="LAUNCH URL OR SEARCH..." onkeypress="if(event.key==='Enter') handleLaunch()">
+            <button onclick="handleLaunch()" class="bg-purple-600 px-6 py-2 rounded-xl text-xs font-bold">LAUNCH</button>
         </header>
 
-        <div id="v-dash" class="flex-1 overflow-y-auto p-8 grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div id="content-area" class="flex-1 overflow-y-auto p-8">
+            <div id="view-games" class="hidden grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4"></div>
+            
+            <div id="view-home" class="space-y-6">
+                <div class="glass p-10 rounded-[3rem] bg-gradient-to-br from-purple-900/10 to-transparent">
+                    <h2 class="text-4xl font-black italic tracking-tighter mb-4">SYSTEM READY.</h2>
+                    <p class="text-gray-400 text-sm max-w-lg leading-relaxed">Moltbot AI is now integrated into your core. Use the side panel to chat, generate code, or find new unblocked links.</p>
+                </div>
             </div>
 
-        <div id="v-cinema" class="hidden flex-1 flex flex-col items-center justify-center p-10 bg-black">
-            <div class="w-full max-w-4xl aspect-video glass rounded-[40px] flex items-center justify-center border-2 border-dashed border-white/10">
-                <p class="text-gray-500 animate-pulse uppercase tracking-[1em]">Awaiting Cinema Feed</p>
-            </div>
-            <div class="flex gap-4 mt-8">
-                <button class="px-6 py-2 glass rounded-full text-[10px] font-bold">VIDSRC 1</button>
-                <button class="px-6 py-2 glass rounded-full text-[10px] font-bold">VIDSRC 2</button>
-                <button class="px-6 py-2 glass rounded-full text-[10px] font-bold">SFLIX</button>
+            <div id="view-cinema" class="hidden text-center pt-20">
+                <h2 class="text-3xl font-black mb-8">TITAN CINEMA</h2>
+                <div class="flex flex-wrap justify-center gap-4">
+                    <button onclick="launch('https://vidsrc.to')" class="glass px-8 py-4 rounded-2xl font-bold">VidSrc</button>
+                    <button onclick="launch('https://sflix.to')" class="glass px-8 py-4 rounded-2xl font-bold">SFlix</button>
+                </div>
             </div>
         </div>
 
-        <div id="dev-terminal" class="hidden absolute bottom-10 right-10 w-96 h-64 glass rounded-2xl p-4 shadow-2xl z-[100] border-t-4 border-green-500">
-            <div class="flex justify-between items-center mb-2">
-                <span class="text-[9px] font-black text-green-500">TERMINAL.SINGULARITY_V4</span>
-                <button onclick="toggleDev()" class="text-xs">×</button>
+        <div id="ai-side-panel" class="fixed top-0 right-0 w-96 h-full bg-[#0a0a0c] border-l border-white/10 z-[100] flex flex-col shadow-2xl">
+            <div class="p-6 border-b border-white/5 flex justify-between items-center">
+                <h3 class="font-black text-cyan-400 tracking-widest text-sm">MOLTBOT AI NODE</h3>
+                <button onclick="toggleAI()" class="text-gray-500 hover:text-white">✕</button>
             </div>
-            <div id="term-out" class="text-[9px] font-mono h-40 overflow-y-auto text-green-300">
-                > Initializing AI Node...<br>
-                > Bypassing restrictions...<br>
-                > Ready.
+            <div class="flex-1 overflow-hidden">
+                <iframe src="https://619amandagaiser-del.github.io/moltbot/" class="w-full h-full border-none"></iframe>
             </div>
-            <input type="text" class="w-full bg-black/50 mt-2 p-2 rounded text-[9px] font-mono border border-white/5 outline-none" placeholder="Enter query...">
         </div>
     </main>
 
-    <div id="bio-break" class="hidden fixed inset-0 bg-black z-[10000] flex flex-col items-center justify-center">
-        <div class="w-20 h-20 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-        <p class="mt-8 font-mono text-blue-500 text-xl uppercase tracking-widest">System Update: 44% Complete</p>
-        <p class="mt-2 text-gray-600 text-[10px]">Do not turn off your computer.</p>
-        <button onclick="toggleBioBreak()" class="mt-20 opacity-0 cursor-default">Unlock</button>
+    <div id="bio-lock" class="hidden fixed inset-0 bg-black z-[10000] flex flex-col items-center justify-center">
+        <div class="w-12 h-12 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
+        <p class="mt-6 font-mono text-xs text-gray-500 uppercase tracking-widest">Update 88% - System Restarting</p>
     </div>
 
     <script>
-        const proxy = "https://v.st-re.am/service/";
-        const games = [
-            {t: "Krunker", u: "https://krunker.io"}, {t: "Wordle", u: "https://nytimes.com/games/wordle"},
-            {t: "Agar.io", u: "https://agar.io"}, {t: "Slither", u: "https://slither.io"},
-            {t: "Infinite Craft", u: "https://neal.fun/infinite-craft"}, {t: "Cookie Clicker", u: "https://orteil.dashnet.org/cookieclicker"},
-            {t: "Shell Shock", u: "https://shellshock.io"}, {t: "Diep.io", u: "https://diep.io"}
-            // [Imagine 42 more game objects here]
+        const proxyBase = "https://incognito.education/service/";
+        const GAMES = [
+            {n:"1v1.LOL", u:"https://1v1.lol"}, {n:"Krunker", u:"https://krunker.io"}, 
+            {n:"Minecraft", u:"https://eaglercraft.com"}, {n:"Subway Surfers", u:"https://poki.com/en/g/subway-surfers"},
+            {n:"Retro Bowl", u:"https://retrobowl.me"}, {n:"Cookie Clicker", u:"https://orteil.dashnet.org/cookieclicker/"},
+            {n:"Suroi.io", u:"https://suroi.io"}, {n:"Slope", u:"https://kbhgames.com/game/slope-game"},
+            {n:"BitLife", u:"https://bitlifeonline.com"}, {n:"Paper.io 2", u:"https://paper-io.com"}
+            // Add your 50+ games here...
         ];
 
-        // 1. DYNAMIC GRID
-        const dash = document.getElementById('v-dash');
-        games.forEach(g => {
-            const btn = document.createElement('div');
-            btn.className = 'glass p-6 rounded-[2rem] text-center cursor-pointer hover:neon-border';
-            btn.onclick = () => launch(g.u);
-            btn.innerHTML = `<div class="text-[10px] font-black text-white">${g.t}</div>`;
-            dash.appendChild(btn);
+        function toggleAI() { document.getElementById('ai-side-panel').classList.toggle('open'); }
+        function toggleBio() { document.getElementById('bio-lock').classList.toggle('hidden'); }
+
+        function setTab(tab) {
+            ['home', 'games', 'cinema'].forEach(t => {
+                document.getElementById('view-'+t).classList.add('hidden');
+                document.getElementById('btn-'+t).classList.remove('active-tab');
+            });
+            document.getElementById('view-'+tab).classList.remove('hidden');
+            document.getElementById('btn-'+tab).classList.add('active-tab');
+        }
+
+        function launch(url) {
+            let target = url.trim();
+            if(!target.startsWith('http')) target = 'https://' + target;
+            const encoded = btoa(target);
+            const win = window.open('about:blank', '_blank');
+            if(!win) return alert("Allow Popups!");
+            win.document.write(`<html><head><title>Google Docs</title></head><body style="margin:0;overflow:hidden;background:#000;"><iframe src="${proxyBase + encoded}" style="width:100%;height:100vh;border:none;"></iframe></body></html>`);
+        }
+
+        function handleLaunch() {
+            const query = document.getElementById('omnibox').value;
+            launch(query.includes('.') ? query : 'https://google.com/search?q=' + query);
+        }
+
+        const grid = document.getElementById('view-games');
+        GAMES.forEach(g => {
+            const el = document.createElement('div');
+            el.className = 'glass p-6 rounded-2xl cursor-pointer text-center text-[10px] font-bold uppercase';
+            el.innerText = g.n;
+            el.onclick = () => launch(g.u);
+            grid.appendChild(el);
         });
 
-        // 2. LAUNCHER CORE
-        function launch(target) {
-            let url = target.includes('://') ? target : 'https://' + target;
-            const blobContent = `<html><head><title>Google Docs</title><style>body,html{margin:0;height:100vh;overflow:hidden;background:#000;}iframe{width:100%;height:100%;border:none;}</style></head><body><iframe src="${proxy + btoa(url)}"></iframe></body></html>`;
-            const blob = new Blob([blobContent], {type: 'text/html'});
-            window.open(URL.createObjectURL(blob), '_blank');
-        }
-
-        // 3. COMMAND ENGINE
-        function executeCommand() {
-            const input = document.getElementById('main-input');
-            const cmd = input.value.toLowerCase();
-            if(cmd === '/yt') launch('youtube.com');
-            else if(cmd === '/dc') launch('discord.com');
-            else launch(cmd);
-            input.value = '';
-        }
-
-        // 4. CLOAKING
-        function changeCloak() {
-            const c = document.getElementById('cloak-select').value;
-            const fav = document.getElementById('favicon');
-            if(c === 'drive') { document.title = "My Drive - Google Drive"; fav.href = "https://ssl.gstatic.com/images/branding/product/1x/drive_2020q4_32dp.png"; }
-            else if(c === 'canvas') { document.title = "Dashboard"; fav.href = "https://du11hjcvx0uqb.cloudfront.net/dist/images/favicon-e1061570a1.ico"; }
-            else { document.title = "Google Docs - Research"; fav.href = "https://ssl.gstatic.com/docs/documents/images/kix-favicon7.ico"; }
-        }
-
-        // 5. SECURITY TOGGLES
-        function toggleBioBreak() { document.getElementById('bio-break').classList.toggle('hidden'); }
-        function toggleDev() { document.getElementById('dev-terminal').classList.toggle('hidden'); }
-        function switchView(v) { 
-            document.getElementById('v-dash').classList.toggle('hidden', v !== 'dash');
-            document.getElementById('v-cinema').classList.toggle('hidden', v !== 'cinema');
-        }
-
-        // 6. HOTKEYS
+        // Hotkeys
         window.onkeydown = (e) => {
             if(e.shiftKey && e.key === 'Escape') window.location.replace('https://classroom.google.com');
-            if(e.key === '`') { const g = document.getElementById('ghost-sheet'); g.style.display = g.style.display === 'block' ? 'none' : 'block'; }
+            if(e.key === '`') {
+                const g = document.getElementById('ghost-overlay');
+                g.style.display = g.style.display === 'block' ? 'none' : 'block';
+            }
         };
 
-        // 7. FAKE STATS
-        setInterval(() => {
-            document.getElementById('cpu-bar').style.width = Math.floor(Math.random() * 40 + 20) + '%';
-            document.getElementById('ping-val').innerText = Math.floor(Math.random() * 10 + 20) + 'ms';
-        }, 3000);
+        // Persistent Notes
+        const n = document.getElementById('notes-area');
+        n.value = localStorage.getItem('titan_notes') || '';
+        n.oninput = () => localStorage.setItem('titan_notes', n.value);
 
-        function selfDestruct() { if(confirm("NUCLEAR OPTION: Close all sessions?")) window.close(); }
+        document.addEventListener('visibilitychange', () => {
+            document.title = document.hidden ? "My Drive - Google Drive" : "Google Docs - Research";
+        });
     </script>
 </body>
 </html>
